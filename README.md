@@ -13,7 +13,7 @@ A sleek, responsive web interface built for UI/UX testing and custom exam simula
 2. Open `index.html` directly in your browser.
 
 ## Built With
-This project was "proudly" developed using:
+This project was "proudly", though entirely developed using:
 * Claude-fable-5
 * Gemini-3.1-pro-preview
 * Gemini-3.1-Pro
