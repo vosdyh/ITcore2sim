@@ -6,194 +6,180 @@
 <title>Core 2 PBQ Lab Simulator</title>
 <style>
 :root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2330;--border:#30363d;--txt:#c9d1d9;--accent:#58a6ff;--good:#3fb950;--bad:#f85149;--warn:#d29922;}
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;}
-html,body{height:100%;}
-body{background:var(--bg);color:var(--txt);overflow:hidden;}
-#shake-wrap{display:flex;flex-direction:column;height:100vh;}
 
-/* Mechanical spring-loaded push-down on all interactive controls */
-button,select{transition:all .15s ease;}
-button:active:not(:disabled),select:active:not(:disabled){transform:scale(.95) translateY(1px);}
+/* Global Scrollbar Hide & Reset */
+::-webkit-scrollbar { display: none; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; scrollbar-width: none; -ms-overflow-style: none; }
 
-header{background:var(--panel);border-bottom:2px solid var(--border);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-shrink:0;z-index:50;}
-header h1{font-size:17px;color:#fff;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-header h1 span{color:var(--accent);}
-#timer{font-family:monospace;font-size:15px;color:var(--warn);}
-.hbtn{background:#238636;color:#fff;border:none;padding:10px 22px;border-radius:6px;font-weight:700;cursor:pointer;font-size:14px;}
-.hbtn:hover{background:#2ea043;}
-#resetExam{display:none;background:#8b2635;}
-#resetExam:hover{background:#a53040;}
-#sideToggle{background:var(--panel2);border:1px solid var(--border);color:var(--txt);width:38px;height:38px;border-radius:6px;cursor:pointer;font-size:16px;flex-shrink:0;}
-#sideToggle:hover{border-color:var(--accent);color:var(--accent);}
+html, body { height: 100%; overflow: hidden; }
+body { background: var(--bg); color: var(--txt); font-size: clamp(13px, 1.2vw, 14.5px); }
+#shake-wrap { display: flex; flex-direction: column; height: 100vh; }
 
-/* Layout: sidebar + content */
-#layout{display:flex;flex:1;min-height:0;}
-aside{width:230px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:width .25s ease;flex-shrink:0;overflow:hidden;}
-aside.collapsed{width:58px;}
-aside nav{display:flex;flex-direction:column;flex:1;padding:8px;gap:6px;}
-aside nav button{flex:1;background:var(--panel2);border:1px solid var(--border);color:var(--txt);border-radius:8px;cursor:pointer;font-size:13px;display:flex;align-items:center;padding:0 14px;text-align:left;white-space:nowrap;overflow:hidden;min-height:0;}
-aside nav button:hover{border-color:var(--accent);}
-aside nav button.active{border-color:var(--accent);color:var(--accent);background:#1a2536;font-weight:700;}
-aside nav button .lnum{display:none;font-size:17px;font-weight:700;}
-aside nav button .lname{overflow:hidden;text-overflow:ellipsis;}
-aside.collapsed nav button{justify-content:center;padding:0;}
-aside.collapsed nav button .lnum{display:block;}
-aside.collapsed nav button .lname{display:none;}
+button, select { transition: all .15s ease; }
+button:active:not(:disabled), select:active:not(:disabled) { transform: scale(.95) translateY(1px); }
 
-main{padding:18px 22px;flex:1;overflow-y:auto;min-width:0;display:flex;flex-direction:column;}
-.inner{max-width:1050px;margin:0 auto;width:100%;flex:1;display:flex;flex-direction:column;min-height:0;}
-.lab{display:none;}
-.lab.active{display:block;}
-/* Lab 4 becomes a full-height flex column when active */
-.lab.chat-lab.active{display:flex;flex-direction:column;flex:1;min-height:0;}
-.lab.chat-lab .vwrap{display:flex;flex-direction:column;flex:1;min-height:0;}
-.variant-toggle{display:flex;gap:8px;margin-bottom:12px;flex-shrink:0;align-items:center;}
-.variant-toggle button{background:var(--panel2);border:1px solid var(--border);color:var(--txt);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;}
-.variant-toggle button.on{border-color:var(--accent);color:var(--accent);font-weight:700;}
-.variant-toggle button:disabled{opacity:.35;cursor:not-allowed;text-decoration:line-through;}
-.vlock-note{font-size:11.5px;color:#8b949e;font-style:italic;}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:14px;}
-.card:last-child{margin-bottom:0;}
-.card.compact{padding:14px 16px;margin-bottom:10px;}
-.card h2{font-size:15px;color:#fff;margin-bottom:8px;}
-.card h3{font-size:13px;color:var(--accent);margin:12px 0 6px;}
-.scenario{font-size:13.5px;line-height:1.6;color:#adbac7;}
-.card.compact .scenario{font-size:13px;line-height:1.5;}
-.terminal{background:#000;border:1px solid var(--border);border-radius:6px;padding:12px;font-family:'Consolas',monospace;font-size:13px;min-height:180px;max-height:300px;overflow-y:auto;margin-bottom:8px;white-space:pre-wrap;color:#ccc;}
-.terminal .err{color:var(--bad);}
-.terminal .ok{color:var(--good);}
-.term-input{display:flex;gap:6px;}
-.term-input span{font-family:monospace;color:var(--good);padding-top:8px;}
-.term-input input{flex:1;background:#000;border:1px solid var(--border);color:#fff;font-family:monospace;padding:8px;border-radius:4px;font-size:13px;}
-select,input[type=text]{background:var(--panel2);border:1px solid var(--border);color:var(--txt);padding:8px;border-radius:5px;font-size:13px;}
-input[type=text]{min-width:220px;}
-select{transition:width .2s ease, all .15s ease;}
-#measure{position:absolute;visibility:hidden;white-space:nowrap;font-size:13px;font-family:'Segoe UI',Arial,sans-serif;top:-100px;}
-label{display:block;font-size:12.5px;margin:10px 0 4px;color:#8b949e;}
+header { background: var(--panel); border-bottom: 2px solid var(--border); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-shrink: 0; z-index: 50; }
+header h1 { font-size: clamp(15px, 1.5vw, 17px); color: #fff; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+header h1 span { color: var(--accent); }
+#timer { font-family: monospace; font-size: clamp(14px, 1.2vw, 15px); color: var(--warn); }
+.hbtn { background: #238636; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: clamp(13px, 1.2vw, 14.5px); }
+.hbtn:hover { background: #2ea043; }
+#resetExam { display: none; background: #8b2635; }
+#resetExam:hover { background: #a53040; }
+#sideToggle { background: var(--panel2); border: 1px solid var(--border); color: var(--txt); width: 38px; height: 38px; border-radius: 6px; cursor: pointer; font-size: 16px; flex-shrink: 0; }
+#sideToggle:hover { border-color: var(--accent); color: var(--accent); }
 
-/* Two-column compact field grid (Lab 6B) */
-.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 24px;}
-.field-grid label{margin:6px 0 4px;}
+#layout { display: flex; flex: 1; min-height: 0; }
+aside { width: 230px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: width .25s ease; flex-shrink: 0; overflow: hidden; }
+aside.collapsed { width: 58px; }
+aside nav { display: flex; flex-direction: column; flex: 1; padding: 8px; gap: 6px; }
+aside nav button { flex: 1; background: var(--panel2); border: 1px solid var(--border); color: var(--txt); border-radius: 8px; cursor: pointer; font-size: clamp(12px, 1vw, 14px); display: flex; align-items: center; padding: 0 14px; text-align: left; white-space: nowrap; overflow: hidden; min-height: 0; }
+aside nav button:hover { border-color: var(--accent); }
+aside nav button.active { border-color: var(--accent); color: var(--accent); background: #1a2536; font-weight: 700; }
+aside nav button .lnum { display: none; font-size: 17px; font-weight: 700; }
+aside nav button .lname { overflow: hidden; text-overflow: ellipsis; }
+aside.collapsed nav button { justify-content: center; padding: 0; }
+aside.collapsed nav button .lnum { display: block; }
+aside.collapsed nav button .lname { display: none; }
 
-/* Chat (Lab 4) — full-height card, chat grows, only inner scrollbar */
-.chat-card{display:flex;flex-direction:column;flex:1;min-height:0;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px 18px;}
-.chat-card h2{font-size:15px;color:#fff;margin-bottom:8px;flex-shrink:0;}
-.chat-card .scenario{flex-shrink:0;}
-.chat-window{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:12px;flex:1;min-height:0;overflow-y:auto;margin:12px 0;display:flex;flex-direction:column;}
-.chat-window .spacer{flex:1;} /* pushes messages to the bottom like a real chat */
-.msg{padding:8px 12px;border-radius:8px;margin-bottom:8px;font-size:13px;max-width:85%;line-height:1.5;flex-shrink:0;}
-.msg.them{background:#3d2a2a;border:1px solid #5a3535;align-self:flex-start;}
-.msg.you{background:#22304a;border:1px solid #2e4368;align-self:flex-end;text-align:right;}
-.choices{flex-shrink:0;}
-.choices button{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--border);color:var(--txt);padding:10px;border-radius:6px;margin-bottom:6px;cursor:pointer;font-size:13px;}
-.choices button:hover{border-color:var(--accent);}
-.choices button:disabled{opacity:.45;cursor:not-allowed;}
-.choices button:last-child{margin-bottom:0;}
+/* Main Layout Fluidity */
+main { padding: clamp(12px, 1.5vh, 18px) clamp(16px, 2vw, 22px); flex: 1; overflow: hidden; min-width: 0; display: flex; flex-direction: column; }
+.inner { max-width: 1050px; margin: 0 auto; width: 100%; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.lab { display: none; }
+.lab.active { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.vwrap { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 
-.step-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
-.step-row .num{width:26px;height:26px;border-radius:50%;background:var(--panel2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
-.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;}
-.badge.fail{background:#3d1d1d;color:var(--bad);border:1px solid var(--bad);}
-.badge.pass{background:#1d3d24;color:var(--good);border:1px solid var(--good);}
-table{width:100%;border-collapse:collapse;font-size:13px;}
-th,td{border:1px solid var(--border);padding:8px;text-align:left;}
-th{background:var(--panel2);color:var(--accent);}
+.variant-toggle { display: flex; gap: 8px; margin-bottom: 10px; flex-shrink: 0; align-items: center; }
+.variant-toggle button { background: var(--panel2); border: 1px solid var(--border); color: var(--txt); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: clamp(12px, 1vw, 13px); }
+.variant-toggle button.on { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.variant-toggle button:disabled { opacity: .35; cursor: not-allowed; text-decoration: line-through; }
 
-/* Modals + drop-in animation */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;overflow-y:auto;padding:30px;}
-.overlay.open{display:block;}
-@keyframes dropIn{
-  0%{opacity:0;transform:translateY(-46px) scale(.96);}
-  60%{opacity:1;transform:translateY(8px) scale(1.005);}
-  80%{transform:translateY(-3px) scale(1);}
-  100%{opacity:1;transform:translateY(0) scale(1);}
+.variant-toggle button.v-pass { border-color: var(--good); color: var(--good); background: rgba(63,185,80,0.12); }
+.variant-toggle button.v-pass.on { background: rgba(63,185,80,0.25); border-width: 2px; font-weight: 800; }
+.variant-toggle button.v-attempt { border-color: var(--warn); color: var(--warn); background: rgba(210,153,34,0.12); }
+.variant-toggle button.v-attempt.on { background: rgba(210,153,34,0.25); border-width: 2px; font-weight: 800; }
+
+.vlock-note { font-size: clamp(11px, 0.9vw, 11.5px); color: #8b949e; font-style: italic; }
+
+/* Card Padding Reduction & Flex Optimization */
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: clamp(12px, 1.5vh, 16px) clamp(14px, 1.5vw, 18px); margin-bottom: clamp(8px, 1vh, 12px); }
+.card:last-child { margin-bottom: 0; }
+.card.compact { padding: clamp(10px, 1.2vh, 14px) clamp(12px, 1.2vw, 16px); margin-bottom: clamp(6px, 1vh, 10px); }
+.flex-card { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+
+.card h2 { font-size: clamp(14px, 1.3vw, 16px); color: #fff; margin-bottom: 6px; }
+.card h3 { font-size: clamp(13px, 1.2vw, 14.5px); color: var(--accent); margin: 10px 0 4px; }
+.scenario { font-size: clamp(13px, 1.2vw, 14.5px); line-height: 1.5; color: #adbac7; }
+.card.compact .scenario { font-size: clamp(12px, 1vw, 13px); line-height: 1.4; }
+
+.terminal { background: #000; border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-family: 'Consolas', monospace; font-size: clamp(12px, 1vw, 13.5px); margin-bottom: 8px; white-space: pre-wrap; color: #ccc; }
+.terminal .err { color: var(--bad); }
+.terminal .ok { color: var(--good); }
+.term-input { display: flex; gap: 6px; }
+.term-input span { font-family: monospace; color: var(--good); padding-top: 8px; }
+.term-input input { flex: 1; background: #000; border: 1px solid var(--border); color: #fff; font-family: monospace; padding: 8px; border-radius: 4px; font-size: clamp(12px, 1vw, 13.5px); }
+
+select, input[type=text] { background: var(--panel2); border: 1px solid var(--border); color: var(--txt); padding: 6px 8px; border-radius: 5px; font-size: clamp(12px, 1vw, 14px); }
+input[type=text] { min-width: 220px; }
+select { transition: width .2s ease, all .15s ease; }
+#measure { position: absolute; visibility: hidden; white-space: nowrap; font-size: clamp(12px, 1vw, 14px); font-family: 'Segoe UI', Arial, sans-serif; top: -100px; }
+label { display: block; font-size: clamp(12px, 1vw, 13.5px); margin: 6px 0 2px; color: #8b949e; }
+
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 16px; }
+.field-grid label { margin: 4px 0 2px; }
+
+.chat-card { display: flex; flex-direction: column; flex: 1; min-height: 0; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: clamp(12px, 1.5vh, 16px) clamp(14px, 1.5vw, 18px); }
+.chat-card h2 { font-size: clamp(14px, 1.3vw, 16px); color: #fff; margin-bottom: 6px; flex-shrink: 0; }
+.chat-card .scenario { flex-shrink: 0; }
+.chat-window { background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; padding: 12px; flex: 1; min-height: 0; overflow-y: auto; margin: 10px 0; display: flex; flex-direction: column; }
+.chat-window .spacer { flex: 1; } 
+.msg { padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; font-size: clamp(12px, 1vw, 14px); max-width: 85%; line-height: 1.5; flex-shrink: 0; }
+.msg.them { background: #3d2a2a; border: 1px solid #5a3535; align-self: flex-start; }
+.msg.you { background: #22304a; border: 1px solid #2e4368; align-self: flex-end; text-align: right; }
+.choices { flex-shrink: 0; }
+.choices button { display: block; width: 100%; text-align: left; background: var(--panel2); border: 1px solid var(--border); color: var(--txt); padding: 10px; border-radius: 6px; margin-bottom: 6px; cursor: pointer; font-size: clamp(12px, 1vw, 14px); }
+.choices button:hover { border-color: var(--accent); }
+.choices button:disabled { opacity: .45; cursor: not-allowed; }
+.choices button:last-child { margin-bottom: 0; }
+
+.step-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+.step-row .num { width: 26px; height: 26px; border-radius: 50%; background: var(--panel2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+.badge.fail { background: #3d1d1d; color: var(--bad); border: 1px solid var(--bad); }
+.badge.pass { background: #1d3d24; color: var(--good); border: 1px solid var(--good); }
+table { width: 100%; border-collapse: collapse; font-size: clamp(12px, 1vw, 14px); }
+th, td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; }
+th { background: var(--panel2); color: var(--accent); }
+
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 100; overflow-y: auto; padding: 30px; }
+.overlay.open { display: block; }
+@keyframes dropIn {
+  0% { opacity: 0; transform: translateY(-46px) scale(.96); }
+  60% { opacity: 1; transform: translateY(8px) scale(1.005); }
+  80% { transform: translateY(-3px) scale(1); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
-.overlay.open .report,.overlay.open .confirm-box{animation:dropIn .45s cubic-bezier(.22,1.1,.36,1) both;}
-.report{background:var(--panel);border:1px solid var(--border);border-radius:10px;max-width:860px;margin:0 auto;padding:28px;position:relative;}
-.report h2{color:#fff;text-align:center;font-size:20px;margin-bottom:4px;}
-.report .sub{text-align:center;color:#8b949e;font-size:12px;margin-bottom:20px;}
-#xClose{position:absolute;top:14px;right:14px;background:var(--panel2);border:1px solid var(--border);color:var(--txt);width:34px;height:34px;border-radius:6px;cursor:pointer;font-size:16px;font-weight:700;line-height:1;}
-#xClose:hover{border-color:var(--bad);color:var(--bad);}
-.score-big{text-align:center;font-size:56px;font-weight:800;margin:10px 0;}
-.score-big.pass{color:var(--good);}
-.score-big.fail{color:var(--bad);}
-.verdict{text-align:center;font-size:16px;font-weight:700;margin-bottom:22px;letter-spacing:2px;}
-.lab-report{border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px;background:var(--panel2);}
-.lab-report h4{font-size:13.5px;color:#fff;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
-.lab-report ul{margin:8px 0 8px 4px;font-size:12.5px;line-height:1.7;list-style:none;}
-.lab-report li.ok{color:#9fd7a8;}
-.lab-report li.no{color:#e8938e;}
-.lab-report li .mark{display:inline-block;width:24px;}
-.textbook{background:#101820;border-left:3px solid var(--accent);padding:10px 12px;font-size:12.5px;line-height:1.65;color:#a8b8c8;margin-top:8px;border-radius:0 6px 6px 0;}
-.textbook b{color:var(--accent);}
-#closeModal{display:block;margin:18px auto 0;background:var(--panel2);border:1px solid var(--border);color:var(--txt);padding:10px 24px;border-radius:6px;cursor:pointer;}
-#closeModal:hover{border-color:var(--accent);}
-.note{font-size:12px;color:#8b949e;margin-top:6px;}
+.overlay.open .report, .overlay.open .confirm-box { animation: dropIn .45s cubic-bezier(.22,1.1,.36,1) both; }
+.report { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; max-width: 860px; margin: 0 auto; padding: 28px; position: relative; }
+.report h2 { color: #fff; text-align: center; font-size: 20px; margin-bottom: 4px; }
+.report .sub { text-align: center; color: #8b949e; font-size: 12px; margin-bottom: 20px; }
+#xClose { position: absolute; top: 14px; right: 14px; background: var(--panel2); border: 1px solid var(--border); color: var(--txt); width: 34px; height: 34px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 700; line-height: 1; }
+#xClose:hover { border-color: var(--bad); color: var(--bad); }
+.score-big { text-align: center; font-size: 56px; font-weight: 800; margin: 10px 0; }
+.score-big.pass { color: var(--good); }
+.score-big.fail { color: var(--bad); }
+.verdict { text-align: center; font-size: 16px; font-weight: 700; margin-bottom: 22px; letter-spacing: 2px; }
+.lab-report { border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; background: var(--panel2); }
+.lab-report h4 { font-size: 13.5px; color: #fff; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+.lab-report ul { margin: 8px 0 8px 4px; font-size: 12.5px; line-height: 1.7; list-style: none; }
+.lab-report li.ok { color: #9fd7a8; }
+.lab-report li.no { color: #e8938e; }
+.lab-report li .mark { display: inline-block; width: 24px; }
+.textbook { background: #101820; border-left: 3px solid var(--accent); padding: 10px 12px; font-size: 12.5px; line-height: 1.65; color: #a8b8c8; margin-top: 8px; border-radius: 0 6px 6px 0; }
+.textbook b { color: var(--accent); }
+#closeModal { display: block; margin: 18px auto 0; background: var(--panel2); border: 1px solid var(--border); color: var(--txt); padding: 10px 24px; border-radius: 6px; cursor: pointer; }
+#closeModal:hover { border-color: var(--accent); }
+.note { font-size: clamp(11px, 0.9vw, 12px); color: #8b949e; margin-top: 6px; }
 
-/* Power grid (Lab 8A) — tightened */
-.drop-grid{display:grid;grid-template-columns:1fr auto;gap:5px 10px;align-items:center;max-width:520px;}
-.drop-grid .dev{background:var(--panel2);border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12.5px;}
-.drop-grid select{padding:6px 8px;font-size:12.5px;}
+.drop-grid { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; align-items: center; max-width: 520px; }
+.drop-grid .dev { background: var(--panel2); border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-size: clamp(12px, 1vw, 13px); }
+.drop-grid select { padding: 6px 8px; font-size: clamp(12px, 1vw, 13px); }
 
-footer{background:var(--panel);border-top:1px solid var(--border);padding:12px 24px;text-align:center;font-size:12px;color:#8b949e;font-family:monospace;flex-shrink:0;}
+footer { background: var(--panel); border-top: 1px solid var(--border); padding: 12px 24px; text-align: center; font-size: 12px; color: #8b949e; font-family: monospace; flex-shrink: 0; }
 
-/* Reset confirmation modal */
-.confirm-box{background:var(--panel);border:1px solid var(--border);border-radius:10px;max-width:420px;margin:18vh auto 0;padding:26px;text-align:center;}
-.confirm-box h3{color:#fff;font-size:16px;margin-bottom:10px;}
-.confirm-box p{font-size:13px;color:#adbac7;line-height:1.6;margin-bottom:20px;}
-.confirm-actions{display:flex;gap:10px;justify-content:center;}
-.confirm-actions button{padding:9px 22px;border-radius:6px;font-weight:700;font-size:13px;cursor:pointer;border:1px solid var(--border);}
-#confirmCancel{background:var(--panel2);color:var(--txt);}
-#confirmCancel:hover{border-color:var(--accent);}
-#confirmReset{background:#8b2635;color:#fff;border-color:#8b2635;}
-#confirmReset:hover{background:#a53040;}
+.confirm-box { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; max-width: 420px; margin: 18vh auto 0; padding: 26px; text-align: center; }
+.confirm-box h3 { color: #fff; font-size: 16px; margin-bottom: 10px; }
+.confirm-box p { font-size: 13px; color: #adbac7; line-height: 1.6; margin-bottom: 20px; }
+.confirm-actions { display: flex; gap: 10px; justify-content: center; }
+.confirm-actions button { padding: 9px 22px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid var(--border); }
+#confirmCancel { background: var(--panel2); color: var(--txt); }
+#confirmCancel:hover { border-color: var(--accent); }
+#confirmReset { background: #8b2635; color: #fff; border-color: #8b2635; }
+#confirmReset:hover { background: #a53040; }
 
-/* Etch-a-Sketch reset jiggle (dampened) */
-@keyframes jiggle{
-  0%{transform:translateX(0);}
-  8%{transform:translateX(-8px) rotate(-.2deg);}
-  20%{transform:translateX(7px) rotate(.2deg);}
-  32%{transform:translateX(-6px) rotate(-.15deg);}
-  44%{transform:translateX(5px) rotate(.15deg);}
-  56%{transform:translateX(-4px) rotate(-.1deg);}
-  68%{transform:translateX(3px) rotate(.1deg);}
-  80%{transform:translateX(-2px);}
-  90%{transform:translateX(1px);}
-  100%{transform:translateX(0);}
+@keyframes jiggle {
+  0% { transform: translateX(0); }
+  8% { transform: translateX(-8px) rotate(-.2deg); }
+  20% { transform: translateX(7px) rotate(.2deg); }
+  32% { transform: translateX(-6px) rotate(-.15deg); }
+  44% { transform: translateX(5px) rotate(.15deg); }
+  56% { transform: translateX(-4px) rotate(-.1deg); }
+  68% { transform: translateX(3px) rotate(.1deg); }
+  80% { transform: translateX(-2px); }
+  90% { transform: translateX(1px); }
+  100% { transform: translateX(0); }
 }
-.animate-jiggle{animation:jiggle .6s cubic-bezier(.36,.07,.19,.97) both;}
-/* ============================================================
-   LEGAL WARNING MODAL & BLUR EFFECT
-   ============================================================ */
-.blur-bg {
-  filter: blur(6px) grayscale(80%);
-  pointer-events: none;
-  user-select: none;
-  overflow: hidden;
-}
+.animate-jiggle { animation: jiggle .6s cubic-bezier(.36,.07,.19,.97) both; }
 
-#legalOverlay {
-  display: flex;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.92);
-  z-index: 9999;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
+.blur-bg { filter: blur(6px) grayscale(80%); pointer-events: none; user-select: none; overflow: hidden; }
 
-.legal-box {
-  background: var(--panel);
-  border: 2px solid var(--bad);
-  border-radius: 10px;
-  max-width: 650px;
-  padding: 32px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-}
+#legalOverlay { display: flex; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.92); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+.legal-box { background: var(--panel); border: 2px solid var(--bad); border-radius: 10px; max-width: 650px; padding: 32px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
 .legal-box h2 { color: var(--bad); margin-bottom: 15px; font-size: 22px; }
 .legal-box p { color: #adbac7; margin-bottom: 15px; line-height: 1.6; font-size: 14.5px; }
+
+/* Dashboard SVG Wrapper */
+.graph-wrap { background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; overflow: hidden; }
 </style>
 </head>
 <body>
@@ -208,7 +194,6 @@ footer{background:var(--panel);border-top:1px solid var(--border);padding:12px 2
 </div>
 
 <span id="measure"></span>
-<!-- Added 'blur-bg' class to blur the background initially -->
 <div id="shake-wrap" class="blur-bg">
 <header>
 <button id="sideToggle" onclick="toggleSidebar()" title="Toggle Lab Sidebar">&#9776;</button>
@@ -242,7 +227,42 @@ footer{background:var(--panel);border-top:1px solid var(--border);padding:12px 2
 
 <script>
 /* ============================================================
-   BACKEND DATA MODEL — Answer Schemas & Tracking Matrices
+   HISTORY & PERSISTENCE MANAGER
+   ============================================================ */
+function loadHistory() {
+  try {
+    let hist = localStorage.getItem('pbq_sim_history');
+    if (hist) return JSON.parse(hist);
+  } catch(e) { console.warn("LocalStorage unavailable."); }
+  return { attempts: [], variants: {} };
+}
+
+function saveHistory(data) {
+  try { localStorage.setItem('pbq_sim_history', JSON.stringify(data)); } 
+  catch(e) {}
+}
+
+function applyVariantHistory() {
+  let hist = loadHistory();
+  LABS.forEach(l => {
+    let labHist = hist.variants[l.id] || {};
+    ['A', 'B'].forEach(v => {
+      let btn = document.getElementById('vt' + l.id + v);
+      if (!btn) return;
+      let score = labHist[v];
+      if (score === 100) {
+        btn.innerHTML = `Variant ${v} ✅`;
+        btn.classList.add('v-pass');
+      } else if (score !== undefined) {
+        btn.innerHTML = `Variant ${v} ➖`;
+        btn.classList.add('v-attempt');
+      }
+    });
+  });
+}
+
+/* ============================================================
+   BACKEND DATA MODEL
    ============================================================ */
 const STATE = {
   locked:false,
@@ -288,13 +308,12 @@ function toggleSidebar(){document.getElementById('sidebar').classList.toggle('co
 function setVariant(lab,v){
   if(STATE.locked||STATE.vlocked[lab])return;
   STATE.variant[lab]=v;
-  document.getElementById('lab'+lab+'A').style.display=(v==='A')?(lab===4?'flex':'block'):'none';
-  document.getElementById('lab'+lab+'B').style.display=(v==='B')?(lab===4?'flex':'block'):'none';
+  document.getElementById('lab'+lab+'A').style.display=(v==='A')?'flex':'none';
+  document.getElementById('lab'+lab+'B').style.display=(v==='B')?'flex':'none';
   document.getElementById('vt'+lab+'A').classList.toggle('on',v==='A');
   document.getElementById('vt'+lab+'B').classList.toggle('on',v==='B');
   if(lab===4){scrollChat('4A');scrollChat('4B');}
 }
-/* Variant commitment: first answer in a variant locks out the other variant */
 function lockVariant(lab){
   if(STATE.vlocked[lab])return;
   STATE.vlocked[lab]=true;
@@ -307,45 +326,77 @@ function lockVariant(lab){
 }
 function labShell(id,innerA,innerB){
   const chatCls=id===4?' chat-lab':'';
-  const wrapCls=id===4?'vwrap':'';
-  const dispA=id===4?'flex':'block';
   return `<section class="lab${chatCls}${id===1?' active':''}" id="lab${id}">
   <div class="variant-toggle">
     <button id="vt${id}A" class="on" onclick="setVariant(${id},'A')">Variant A</button>
     <button id="vt${id}B" onclick="setVariant(${id},'B')">Variant B</button>
     <span class="vlock-note" id="vnote${id}"></span>
   </div>
-  <div id="lab${id}A" class="${wrapCls}" style="display:${dispA}">${innerA}</div>
-  <div id="lab${id}B" class="${wrapCls}" style="display:none">${innerB}</div>
+  <div id="lab${id}A" class="vwrap" style="display:flex">${innerA}</div>
+  <div id="lab${id}B" class="vwrap" style="display:none">${innerB}</div>
   </section>`;
 }
 
 /* ============================================================
    LAB 1 — WinRE CLI TERMINALS
    ============================================================ */
-const lab1A=`<div class="card"><h2>WinRE Command Line — Legacy MBR Recovery</h2>
+const lab1A=`<div class="card" style="flex-shrink: 0;"><h2>WinRE Command Line — Legacy MBR Recovery</h2>
 <p class="scenario">A legacy BIOS workstation crashes on boot with the <b>BOOTMGR is missing</b> error. You have been dropped into the Windows Recovery Environment (WinRE) command prompt. Restore boot capability using the correct command sequence, then exit and restart.</p></div>
-<div class="card">
-<div class="terminal" id="term1A">Microsoft Windows [Version 10.0.19045]
+<div class="card flex-card">
+<div class="terminal" id="term1A" style="flex: 1; min-height: 100px; max-height: none;">Microsoft Windows [Version 10.0.19045]
 (c) Microsoft Corporation. All rights reserved.
 
 ERROR CONTEXT: BOOTMGR is missing. Legacy BIOS / MBR disk detected.
 </div>
-<div class="term-input"><span>X:\\Sources&gt;</span><input type="text" id="in1A" onkeydown="if(event.key==='Enter')termExec('1A')" autocomplete="off"></div>
-<p class="note">Type commands and press Enter. Command order matters. UEFI-only diskpart operations on this MBR system will fail the scenario.</p>
+<div class="term-input" style="align-items: center; flex-wrap: wrap; flex-shrink: 0;">
+  <span style="padding-top: 0;">X:\\Sources&gt;</span>
+  <input type="hidden" id="in1A">
+  <select id="cli1A_1" onchange="updateCli(1, '1A')"></select>
+  <select id="cli1A_2" onchange="updateCli(2, '1A')" disabled></select>
+  <select id="cli1A_3" disabled></select>
+  <button class="hbtn" style="padding: 6px 12px; font-size: clamp(12px, 1vw, 13.5px);" onclick="execCli('1A')">Execute</button>
+</div>
+<p class="note" style="flex-shrink: 0;">Select command components and click Execute. Command order matters. UEFI-only diskpart operations on this MBR system will fail the scenario.</p>
 </div>`;
 
-const lab1B=`<div class="card"><h2>WinRE Command Line — UEFI "Access is Denied" Recovery</h2>
-<p class="scenario">A modern UEFI system fails to boot. Running <b>bootrec /fixboot</b> returns <b>Access is Denied</b>. You must mount the hidden FAT32 EFI System Partition (ESP), reformat it, and rebuild the UEFI boot store with bcdboot. Do NOT format the C:\\Windows NTFS partition.</p></div>
-<div class="card">
-<div class="terminal" id="term1B">Microsoft Windows [Version 10.0.22621]
+const lab1B=`<div class="card flex-card">
+<div style="flex-shrink: 0;">
+  <h2>Archetype 1: WinRE Command Line Boot Recovery - Variant B (Modern UEFI/EFI)</h2>
+  <p class="scenario">A modern UEFI system fails to boot. When the student attempts standard recovery commands, the terminal throws an <b>Access is Denied</b> error explicitly during the <b>bootrec /fixboot</b> execution phase.</p>
+  <div class="terminal" id="term1B" style="height: 140px; min-height: 100px; max-height: none; flex-shrink: 0;">Microsoft Windows [Version 10.0.19045.2965]
 (c) Microsoft Corporation. All rights reserved.
 
 X:\\Sources&gt;bootrec /fixboot
 <span class="err">Access is Denied.</span>
 </div>
-<div class="term-input"><span>X:\\Sources&gt;</span><input type="text" id="in1B" onkeydown="if(event.key==='Enter')termExec('1B')" autocomplete="off"></div>
-<p class="note">Sequence: diskpart → sel disk 0 → list vol → sel vol 2 → assign letter=v: → exit → format v: /FS:FAT32 → bcdboot C:\\Windows /s v: /f UEFI. Formatting C: causes catastrophic data loss and instant failure.</p>
+  <div class="term-input" style="align-items: center; flex-wrap: wrap; flex-shrink: 0;">
+    <span style="padding-top: 0;">X:\\Sources&gt;</span>
+    <input type="hidden" id="in1B">
+    <select id="cli1B_1" onchange="updateCli(1, '1B')"></select>
+    <select id="cli1B_2" onchange="updateCli(2, '1B')" disabled></select>
+    <select id="cli1B_3" disabled></select>
+    <button class="hbtn" style="padding: 6px 12px; font-size: clamp(12px, 1vw, 13.5px);" onclick="execCli('1B')">Execute</button>
+  </div>
+  <p class="note" style="flex-shrink: 0;"><b>Deceptive Traps:</b> Endless loops of running fixboot, or the student uses diskpart to format the primary C:\\Windows NTFS partition instead of the hidden FAT32 EFI System Partition (ESP), resulting in catastrophic data loss and immediate PBQ failure.</p>
+</div>
+<div class="steps-container" style="overflow-y: auto; flex: 1; min-height: 0; padding-right: 8px; margin-top: 10px;">
+  <h3 style="margin-top: 4px;">Multi-Step Resolution Sequence</h3>
+  <ol style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 4px 16px; margin-left: 22px; font-size: clamp(12px, 1vw, 13.5px); color: #adbac7; line-height: 1.4;">
+    <li>Execute <b>diskpart</b> to enter the disk partition utility.</li>
+    <li>Execute <b>sel disk 0</b> to select the primary physical drive.</li>
+    <li>Execute <b>list vol</b> to display all partitions. <br><span style="color:#8b949e; font-size:clamp(11px, 0.9vw, 12px);">(Target String readout to identify: <code style="font-family:monospace;">Volume 2    System      FAT32   Partition     100 MB  Hidden</code>)</span></li>
+    <li>Locate the 100 MB FAT32 Hidden partition (typically Volume 2) and execute <b>sel vol 2</b>.</li>
+    <li>Execute <b>assign letter=v:</b> to mount the EFI partition with a recognizable drive letter.</li>
+    <li>Execute <b>exit</b> to leave the diskpart utility.</li>
+    <li>Execute <b>format v: /FS:FAT32</b> to wipe the corrupted EFI boot store.</li>
+    <li>Execute <b>bcdboot C:\\Windows /s v: /f UEFI</b> to write a clean UEFI boot configuration data store from the Windows directory to the newly formatted V: partition.</li>
+  </ol>
+  <h3 style="margin-top: 12px;">Edge Cases</h3>
+  <ul style="margin-left: 22px; font-size: clamp(12px, 1vw, 13.5px); color: #adbac7; line-height: 1.4;">
+    <li><b>File System Corruption:</b> If the WinRE log explicitly reads "The file system is corrupt" or indicates bad sectors on the primary drive, the sequence must begin with <b>chkdsk c: /f /r</b> (fixes logical file system errors and recovers readable information from physical bad sectors).</li>
+    <li><b>System File Integrity Violation:</b> If the log reads "Resource Protection could not perform the requested operation" or mentions missing core .dll files, the student must bypass bootrec and run <b>sfc /scannow /offbootdir=C:\\ /offwindir=C:\\Windows</b> to repair offline Windows images.</li>
+  </ul>
+</div>
 </div>`;
 
 function norm(s){return s.trim().toLowerCase().replace(/\s+/g,' ');}
@@ -380,6 +431,91 @@ function termExec(key){
   term.innerHTML+=`\nX:\\Sources&gt;${raw.trim()}\n${out}\n`;
   term.scrollTop=term.scrollHeight;
   inp.value='';
+}
+
+const CLI_MENU = {
+  '1A': {
+    'bootrec': { '/fixmbr': ['[Execute]'], '/fixboot': ['[Execute]'], '/rebuildbcd': ['[Execute]'] },
+    'exit': { '[None]': ['[Execute]'] },
+    'diskpart': { '[None]': ['[Execute]'] },
+    'bcdboot': { 'C:\\Windows': ['/s v: /f UEFI'] }
+  },
+  '1B': {
+    'diskpart': { '[None]': ['[Execute]'] },
+    'sel': { 'disk': ['0'], 'vol': ['2'] },
+    'list': { 'vol': ['[Execute]'] },
+    'assign': { 'letter=v:': ['[Execute]'] },
+    'exit': { '[None]': ['[Execute]'] },
+    'format': { 'v:': ['/FS:FAT32'], 'c:': ['[Execute]'] },
+    'bcdboot': { 'C:\\Windows': ['/s v: /f UEFI'] }
+  }
+};
+
+function initCli(key) {
+  const s1 = document.getElementById('cli' + key + '_1');
+  if (!s1) return;
+  s1.innerHTML = '<option value="">-- Command --</option>';
+  for (let cmd in CLI_MENU[key]) {
+    s1.innerHTML += `<option value="${cmd}">${cmd}</option>`;
+  }
+  const s2 = document.getElementById('cli' + key + '_2');
+  const s3 = document.getElementById('cli' + key + '_3');
+  s2.innerHTML = '<option value="">-- Flag/Param --</option>';
+  s3.innerHTML = '<option value="">-- Target/Exec --</option>';
+  s2.disabled = true;
+  s3.disabled = true;
+}
+
+function updateCli(level, key) {
+  const s1 = document.getElementById('cli' + key + '_1');
+  const s2 = document.getElementById('cli' + key + '_2');
+  const s3 = document.getElementById('cli' + key + '_3');
+
+  if (level === 1) {
+    s2.innerHTML = '<option value="">-- Flag/Param --</option>';
+    s3.innerHTML = '<option value="">-- Target/Exec --</option>';
+    s3.disabled = true;
+    if (s1.value && CLI_MENU[key][s1.value]) {
+      s2.disabled = false;
+      for (let flag in CLI_MENU[key][s1.value]) {
+        s2.innerHTML += `<option value="${flag}">${flag}</option>`;
+      }
+    } else {
+      s2.disabled = true;
+    }
+  } else if (level === 2) {
+    s3.innerHTML = '<option value="">-- Target/Exec --</option>';
+    if (s2.value && CLI_MENU[key][s1.value][s2.value]) {
+      s3.disabled = false;
+      CLI_MENU[key][s1.value][s2.value].forEach(target => {
+        s3.innerHTML += `<option value="${target}">${target}</option>`;
+      });
+    } else {
+      s3.disabled = true;
+    }
+  }
+  
+  if (typeof fitSelect === 'function') {
+    fitSelect(s1); fitSelect(s2); fitSelect(s3);
+  }
+}
+
+function execCli(key) {
+  const s1 = document.getElementById('cli' + key + '_1');
+  const s2 = document.getElementById('cli' + key + '_2');
+  const s3 = document.getElementById('cli' + key + '_3');
+  
+  if (!s1.value || !s2.value || !s3.value) return;
+
+  let cmdStr = s1.value;
+  if (s2.value !== '[None]') cmdStr += ' ' + s2.value;
+  if (s3.value !== '[Execute]') cmdStr += ' ' + s3.value;
+
+  document.getElementById('in' + key).value = cmdStr;
+  termExec(key);
+  
+  s1.value = '';
+  updateCli(1, key);
 }
 
 /* ============================================================
@@ -425,7 +561,7 @@ const lab3B=`<div class="card"><h2>Command Line Silent Patch Deployment</h2>
 </div>`;
 
 /* ============================================================
-   LAB 4 — LIVE CHAT (full-height chat, inner scroll only)
+   LAB 4 — LIVE CHAT
    ============================================================ */
 const CHAT={
  '4A':{
@@ -500,7 +636,7 @@ const lab4A=chatHTML('4A','Abrasive Executive — Locked Account','A frantic cor
 const lab4B=chatHTML('4B','Social Engineering Counter-Measures','A user claims they are locked out of a critical database and requests an immediate administrative override. Verify without falling for the social engineering payload.');
 
 /* ============================================================
-   LAB 5 — TRIAGE QUEUES (ordered steps)
+   LAB 5 — TRIAGE QUEUES
    ============================================================ */
 const t5Aopts=['-- Select Action --','Reboot the machine to clear the lock screen','IMMEDIATELY disconnect machine from network (Unplug Ethernet / Disable NIC)','Run a full Antivirus scan while connected to the network','Leave the machine powered ON to preserve RAM state','Escalate the ticket to the Security/IR department','Pay the ransom from petty cash'];
 const t5Bopts=['-- Select Action --','Run malware scans in normal boot mode immediately','Disconnect from the network (Quarantine)','Disable System Restore','Reboot the machine into Safe Mode','Update anti-malware signatures (isolated) and run a full system scan','Re-enable System Restore and create a clean restore point'];
@@ -590,15 +726,17 @@ const lab8B=`<div class="card"><h2>Power Overload Calculations — VA vs Watts</
 </div>`;
 
 /* ============================================================
-   MOUNT ALL LABS
+   MOUNT ALL LABS & APPLY HISTORY
    ============================================================ */
 labsBox.innerHTML=
  labShell(1,lab1A,lab1B)+labShell(2,lab2A,lab2B)+labShell(3,lab3A,lab3B)+
  labShell(4,lab4A,lab4B)+labShell(5,lab5A,lab5B)+labShell(6,lab6A,lab6B)+
  labShell(7,lab7A,lab7B)+labShell(8,lab8A,lab8B);
 renderChoices('4A');renderChoices('4B');
+initCli('1A');
+initCli('1B');
+applyVariantHistory();
 
-/* Dynamic select sizing — width follows CHOSEN option, never the longest one */
 const measurer=document.getElementById('measure');
 function fitSelect(s){
   const opt=s.options[s.selectedIndex];
@@ -614,7 +752,7 @@ function initInputs(){
     fitSelect(s);
     s.addEventListener('change',()=>{
       fitSelect(s);
-      if(s.value!=='0'){const id=labIdOf(s);if(id)lockVariant(id);}
+      if(s.value!=='0' && s.value!==''){const id=labIdOf(s);if(id)lockVariant(id);}
     });
   });
   const fqdn=document.getElementById('d6B0');
@@ -645,20 +783,13 @@ function startExamTimer() {
   }, 1000);
 }
 
-// Check if the URL contains our temporary reset flag
 const urlParams = new URLSearchParams(window.location.search);
-
 if (urlParams.get('reset') === '1') {
-  // 1. They used the Reset button. Hide modal, remove blur, start timer.
   document.getElementById('legalOverlay').style.display = 'none';
   document.getElementById('shake-wrap').classList.remove('blur-bg');
   startExamTimer();
-  
-  // 2. Erase the '?reset=1' from the URL bar immediately! 
-  // This ensures if they hit F5 or refresh normally, the warning comes back.
   window.history.replaceState({}, document.title, window.location.pathname);
 } else {
-  // Normal visit or hard refresh. Wait for them to click the accept button.
   document.getElementById('acceptLegalBtn').addEventListener('click', () => {
     document.getElementById('legalOverlay').style.display = 'none';
     document.getElementById('shake-wrap').classList.remove('blur-bg');
@@ -667,11 +798,10 @@ if (urlParams.get('reset') === '1') {
 }
 
 /* ============================================================
-   GRADING ENGINE — per-lab criteria matrices (100 pts each)
+   GRADING ENGINE & SVG GRAPH GENERATOR
    ============================================================ */
 function val(id){const e=document.getElementById(id);return e?e.value:'0';}
-
-function seqIndexCheck(cmds,target){ // ordered subsequence position check
+function seqIndexCheck(cmds,target){ 
   let pos=-1,results=[];
   target.forEach(t=>{
     const idx=cmds.findIndex((c,i)=>i>pos&&c===t);
@@ -681,19 +811,19 @@ function seqIndexCheck(cmds,target){ // ordered subsequence position check
 }
 
 const REMEDIATION={
- 1:"<b>WinRE Recovery Theory:</b> On legacy BIOS/MBR systems the canonical repair chain is <b>bootrec /fixmbr → bootrec /fixboot → bootrec /rebuildbcd → exit</b>. Running /rebuildbcd first fails on heavy MBR corruption. On UEFI systems, an 'Access is Denied' from /fixboot signals a corrupted EFI System Partition (ESP): use diskpart to select disk 0, list volumes, select the ~100MB Hidden FAT32 System volume, assign it a letter (v:), exit, <b>format v: /FS:FAT32</b>, then rebuild the store with <b>bcdboot C:\\Windows /s v: /f UEFI</b>. Edge cases: file system corruption/bad sectors require <b>chkdsk c: /f /r</b> first; missing core DLLs / Resource Protection errors require <b>sfc /scannow /offbootdir=C:\\ /offwindir=C:\\Windows</b>.",
- 2:"<b>Group Policy Theory:</b> After an OU relocation, verify applied GPOs with <b>gpresult /r</b> (or export via gpresult /h), force a Domain Controller poll with <b>gpupdate /force</b>, then have the user <b>Log Off and Log Back In</b> — mandatory for drive mappings and folder redirection. secpol.msc governs LOCAL policy only. For stale DNS pointing at a decommissioned DC: <b>ipconfig /flushdns → ipconfig /registerdns → gpupdate /force</b>. Never target DHCP (/release) when the DNS resolver cache is the fault domain.",
- 3:"<b>Deployment Theory:</b> Zero-touch imaging uses <b>Windows System Image Manager (WSIM)</b> to author a strict-schema <b>unattend.xml</b> answer file, then <b>sysprep.exe /generalize /oobe /unattend:unattend.xml</b> to strip the unique SID and automate OOBE. Silent installs: <b>msiexec /i package.msi /qn /norestart</b> for MSI; <b>setup.exe /S /v\"/qn\"</b> for wrapped EXEs. Omitting <b>/norestart</b> causes a mass midday reboot — instant enterprise failure.",
- 4:"<b>Soft Skills Theory:</b> With abrasive executives: (1) validate frustration empathetically ('I understand how critical this is for you'), (2) state clear intent to resolve quickly, (3) pivot to verification protocols (Employee ID/PIN) WITHOUT exception for status. Never say 'calm down' and never bypass security. Against social engineering: politely deny overrides, initiate a <b>callback to the registered desk phone in the internal directory</b> (never a number provided in-chat), and require <b>Manager Approval + MFA Token Verification</b> for sensitive access.",
- 5:"<b>Containment Theory:</b> Ransomware: IMMEDIATELY unplug Ethernet/disable NIC, leave the machine <b>powered ON</b> to preserve RAM state (encryption keys/volatile evidence), escalate to Security/IR. Never reboot; never scan while networked. Rogue AV/spyware: Quarantine → <b>Disable System Restore</b> (prevents shadow-volume resurrection) → Safe Mode → update signatures and full scan → re-enable System Restore with a clean point.",
- 6:"<b>BYOD/Mail Theory:</b> For 2.4GHz saturation: forget the saturated SSID, join the corporate <b>5GHz (802.11ac/ax)</b> SSID with <b>WPA2/WPA3-Enterprise</b> using domain credentials over <b>802.1X/RADIUS</b> — never modify the router's global channel for one device. Secure mail: IMAP <b>993</b> (SSL/TLS), POP3 <b>995</b> (SSL/TLS), SMTP <b>587</b> (STARTTLS) or <b>465</b> (SSL/TLS), with outgoing authentication enabled. Ports 143/110/25 are unencrypted compliance failures.",
- 7:"<b>Disk Management Theory:</b> A dynamic disk showing 'Foreign' must be right-clicked → <b>Import Foreign Disks</b>, then verified in the wizard — 'Initialize Disk' or 'Convert to Basic' wipes the partition table and destroys the data array. Drives >2TB must be initialized as <b>GPT</b> (MBR caps at 2TB, stranding excess space), followed by New Simple Volume and <b>NTFS</b> formatting.",
- 8:"<b>Power Theory:</b> High instantaneous-draw heating/motor devices (Laser Printers, Space Heaters, Vacuums, Shredders) go on <b>Surge Protectors ONLY</b> — a laser fuser (>1000W startup) trips a UPS inverter and drops the servers. Mission-critical gear (Routers, Core Switches, NAS, Servers, Primary Workstations) belongs on the <b>UPS Battery Backup</b>. VA is not Watts: usable Wattage is roughly VA x 0.8 Power Factor, and load each UPS to no more than 80% of that figure, provisioning secondary UPS units for spillover."
+ 1:"<b>WinRE Recovery Theory:</b> On legacy BIOS/MBR systems the canonical repair chain is <b>bootrec /fixmbr → bootrec /fixboot → bootrec /rebuildbcd → exit</b>. Running /rebuildbcd first fails on heavy MBR corruption. On UEFI systems, an 'Access is Denied' from /fixboot signals a corrupted EFI System Partition (ESP): use diskpart to select disk 0, list volumes, select the ~100MB Hidden FAT32 System volume, assign it a letter (v:), exit, <b>format v: /FS:FAT32</b>, then rebuild the store with <b>bcdboot C:\\Windows /s v: /f UEFI</b>.",
+ 2:"<b>Group Policy Theory:</b> After an OU relocation, verify applied GPOs with <b>gpresult /r</b>, force a DC poll with <b>gpupdate /force</b>, then have the user <b>Log Off and Log Back In</b> — mandatory for drive mappings. secpol.msc governs LOCAL policy only. For stale DNS: <b>ipconfig /flushdns → ipconfig /registerdns → gpupdate /force</b>.",
+ 3:"<b>Deployment Theory:</b> Zero-touch imaging uses <b>Windows System Image Manager (WSIM)</b> to author <b>unattend.xml</b>, then <b>sysprep.exe /generalize /oobe /unattend:unattend.xml</b>. Silent installs: <b>msiexec /i package.msi /qn /norestart</b> for MSI; <b>setup.exe /S /v\"/qn\"</b> for wrapped EXEs. Omitting <b>/norestart</b> causes a mass midday reboot.",
+ 4:"<b>Soft Skills Theory:</b> With abrasive executives: (1) validate frustration empathetically, (2) state clear intent, (3) pivot to verification (Employee ID/PIN) WITHOUT exception. Against social engineering: politely deny overrides, initiate a <b>callback to the registered desk phone</b>, and require <b>Manager Approval + MFA Token</b>.",
+ 5:"<b>Containment Theory:</b> Ransomware: IMMEDIATELY unplug Ethernet/disable NIC, leave the machine <b>powered ON</b> to preserve RAM state, escalate to Security/IR. Rogue AV/spyware: Quarantine → <b>Disable System Restore</b> → Safe Mode → update signatures and full scan → re-enable System Restore.",
+ 6:"<b>BYOD/Mail Theory:</b> For 2.4GHz saturation: forget the saturated SSID, join the corporate <b>5GHz (802.11ac/ax)</b> SSID with <b>WPA2/WPA3-Enterprise</b> using domain credentials over <b>802.1X/RADIUS</b>. Secure mail: IMAP <b>993</b> (SSL/TLS), POP3 <b>995</b> (SSL/TLS), SMTP <b>587</b> (STARTTLS) or <b>465</b> (SSL/TLS).",
+ 7:"<b>Disk Management Theory:</b> A dynamic disk showing 'Foreign' must be right-clicked → <b>Import Foreign Disks</b>. Drives >2TB must be initialized as <b>GPT</b> (MBR caps at 2TB), followed by New Simple Volume and <b>NTFS</b> formatting.",
+ 8:"<b>Power Theory:</b> High instantaneous-draw heating/motor devices (Printers, Heaters, Shredders) go on <b>Surge Protectors ONLY</b>. VA is not Watts: usable Wattage is roughly VA x 0.8 Power Factor, and load each UPS to no more than 80%."
 };
 
 function gradeLab(id){
   const v=STATE.variant[id];
-  let crit=[]; // [label, passed]
+  let crit=[]; 
   if(id===1){
     if(v==='A'){
       const r=seqIndexCheck(STATE.term['1A'],['bootrec /fixmbr','bootrec /fixboot','bootrec /rebuildbcd','exit']);
@@ -743,12 +873,61 @@ function gradeLab(id){
 }
 
 /* ============================================================
-   SCORE REPORT + MODAL CONTROLS + RESET (jiggle)
+   ADAPTIVE GRAPH SVG GENERATOR
+   ============================================================ */
+function generateGraphHTML(attempts) {
+  if (attempts.length === 0) return '';
+  const w = 800, h = 220, padX = 45, padY = 20;
+  const getY = (pct) => h - padY - (pct / 100) * (h - 2 * padY);
+  
+  let pts = attempts.map((a, i) => {
+    let x = padX + (attempts.length > 1 ? i * ((w - 2 * padX) / (attempts.length - 1)) : (w - 2 * padX) / 2);
+    return { x, y: getY(a.score), score: a.score, num: i + 1 };
+  });
+  
+  let polylinePoints = pts.map(p => `${p.x},${p.y}`).join(' ');
+  let gridlines = [20, 40, 60, 80].map(p => `<line x1="${padX}" y1="${getY(p)}" x2="${w - padX}" y2="${getY(p)}" stroke="#30363d" stroke-dasharray="4" />`).join('');
+  let circles = pts.map(p => `
+    <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#0d1117" stroke="var(--txt)" stroke-width="2"/>
+    <text x="${p.x}" y="${p.y - 12}" fill="#c9d1d9" font-size="12" font-weight="bold" text-anchor="middle">${p.score}%</text>
+    <text x="${p.x}" y="${h - 4}" fill="#8b949e" font-size="10" text-anchor="middle">Att ${p.num}</text>
+  `);
+
+  return `
+  <div class="graph-wrap" style="overflow: hidden; padding: 12px;">
+    <h3 style="text-align:center; color:#fff; margin-bottom: 8px; font-size:clamp(13px, 1.2vw, 14.5px);">Results Over Time</h3>
+    <svg viewBox="0 0 ${w} ${h}" style="width: 100%; height: auto; max-width: 100%; font-family:'Segoe UI',sans-serif; display:block; margin:0 auto;">
+      <!-- CompTIA Score Zones -->
+      <rect x="${padX}" y="${getY(100)}" width="${w - 2*padX}" height="${getY(90) - getY(100)}" fill="rgba(63, 185, 80, 0.08)" />
+      <rect x="${padX}" y="${getY(90)}" width="${w - 2*padX}" height="${getY(80) - getY(90)}" fill="rgba(210, 153, 34, 0.08)" />
+      <rect x="${padX}" y="${getY(80)}" width="${w - 2*padX}" height="${getY(0) - getY(80)}" fill="rgba(248, 81, 73, 0.08)" />
+      ${gridlines}
+      
+      <!-- Zone Labels (Moved Inside) -->
+      <text x="${w - padX - 8}" y="${getY(95)}" fill="var(--good)" font-size="11" font-weight="bold" text-anchor="end" dominant-baseline="middle">Probably Ready</text>
+      <text x="${w - padX - 8}" y="${getY(85)}" fill="var(--warn)" font-size="11" font-weight="bold" text-anchor="end" dominant-baseline="middle">Almost Ready</text>
+      <text x="${w - padX - 8}" y="${getY(40)}" fill="var(--bad)" font-size="11" font-weight="bold" text-anchor="end" dominant-baseline="middle">Not Ready</text>
+      
+      <!-- Axis Percentages -->
+      <text x="${padX - 8}" y="${getY(100)}" fill="#8b949e" font-size="11" text-anchor="end" dominant-baseline="middle">100%</text>
+      <text x="${padX - 8}" y="${getY(80)}" fill="#8b949e" font-size="11" text-anchor="end" dominant-baseline="middle">80%</text>
+      <text x="${padX - 8}" y="${getY(60)}" fill="#8b949e" font-size="11" text-anchor="end" dominant-baseline="middle">60%</text>
+      <text x="${padX - 8}" y="${getY(0)}" fill="#8b949e" font-size="11" text-anchor="end" dominant-baseline="middle">0%</text>
+      
+      <!-- Progression Line & Nodes -->
+      <polyline points="${polylinePoints}" fill="none" stroke="var(--txt)" stroke-width="2" />
+      ${circles.join('')}
+    </svg>
+  </div>`;
+}
+
+/* ============================================================
+   SCORE REPORT + MODAL CONTROLS + RESET
    ============================================================ */
 function openReport(){
   const m=document.getElementById('modal');
   m.classList.remove('open');
-  void m.offsetWidth; /* restart drop-in animation */
+  void m.offsetWidth; 
   m.classList.add('open');
 }
 function closeReport(){document.getElementById('modal').classList.remove('open');}
@@ -771,10 +950,9 @@ function doReset(){
   closeResetModal();
   const w=document.getElementById('shake-wrap');
   w.classList.remove('animate-jiggle');
-  void w.offsetWidth; /* restart animation */
+  void w.offsetWidth; 
   w.classList.add('animate-jiggle');
   
-  // Instead of a standard reload, append a temporary reset flag to the URL
   setTimeout(() => {
     window.location.href = window.location.pathname + '?reset=1';
   }, 620); 
@@ -788,12 +966,19 @@ function submitExam(){
   sb.textContent='View Score Report';
   document.getElementById('resetExam').style.display='inline-block';
   document.querySelectorAll('main select,main input,main .choices button,.variant-toggle button').forEach(e=>e.disabled=true);
-  document.querySelectorAll('.term-input input').forEach(e=>e.disabled=true);
+  document.querySelectorAll('.term-input input, .term-input button').forEach(e=>e.disabled=true);
 
   let total=0, blocks='';
+  let hist = loadHistory();
+  
   LABS.forEach(l=>{
     const g=gradeLab(l.id);
     total+=g.score;
+    
+    if (!hist.variants[l.id]) hist.variants[l.id] = {};
+    let prevBest = hist.variants[l.id][g.variant] || 0;
+    hist.variants[l.id][g.variant] = Math.max(prevBest, g.score);
+
     const badge=g.score===100?'<span class="badge pass">COMPLIANT</span>':'<span class="badge fail">ACTION REQUIRED</span>';
     blocks+=`<div class="lab-report">
       <h4>Lab ${l.id}: ${l.title} — Variant ${g.variant} &nbsp; <span>${g.score}/100 ${badge}</span></h4>
@@ -802,14 +987,23 @@ function submitExam(){
       <div class="textbook">${REMEDIATION[l.id]}</div>
     </div>`;
   });
-  const scaled=Math.round(100+(total/800)*800);
-  const pass=scaled>=700;
+
+  const overallPercent = Math.round((total / 800) * 100);
+  const scaled = Math.round(100+(total/800)*800);
+  const pass = scaled>=700;
+
+  hist.attempts.push({ date: new Date().toLocaleDateString(), score: overallPercent, scaled: scaled });
+  saveHistory(hist);
+  
+  const graphHTML = generateGraphHTML(hist.attempts);
+
   document.getElementById('reportBody').innerHTML=`
     <button id="xClose" onclick="closeReport()" title="Close Report">&times;</button>
     <h2>Official Score Report</h2>
     <p class="sub">Core 2 Performance-Based Question Simulation<br>Candidate Session Locked · ${new Date().toLocaleString()}</p>
     <div class="score-big ${pass?'pass':'fail'}">${scaled}</div>
     <div class="verdict" style="color:${pass?'var(--good)':'var(--bad)'}">${pass?'PASS':'FAIL'} — Scale 100–900 · Passing Score: 700</div>
+    ${graphHTML}
     ${blocks}
     <p style="text-align:center;font-size:11px;color:#8b949e;font-family:monospace;margin-top:16px;">© 2026 jibbles. All Rights Reserved // Prepared for personal testing purposes only // Built with claude-fable-5, gemini-3.1-pro & gemini-3.1-pro-preview</p>
     <button id="closeModal" onclick="closeReport()">Close Report (Exam Remains Locked)</button>`;
