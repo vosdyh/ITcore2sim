@@ -21,6 +21,12 @@ This project was "proudly", though entirely developed using:
 ## Disclaimer
 This project is built strictly for personal educational purposes and front-end development practice. It contains no proprietary questions, materials, or copyrighted intellectual property from any commercial certification body.
 
+## Security & Verification
+This project runs entirely on client-side code and does not collect or transmit data. You can verify the integrity of the release file via VirusTotal using the official SHA-256 fingerprint:
+
+* **SHA-256 Hash:** `e832a3e1afb7f872f537f61bdeae0b58bcc0a3ce05673371cd2d1aa5991fcd3a`
+* **Direct Report:** [View Live Scan Analysis](https://virustotal.com)
+
 ## License
 This project is open-source and available under the **MIT License**. 
 
