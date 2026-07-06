@@ -38,7 +38,27 @@ aside nav button:hover { border-color: var(--accent); }
 aside nav button.active { border-color: var(--accent); color: var(--accent); background: #1a2536; font-weight: 700; }
 aside nav button .lnum { display: none; font-size: 17px; font-weight: 700; }
 aside nav button .lname { overflow: hidden; text-overflow: ellipsis; }
-aside.collapsed nav button { justify-content: center; padding: 0; }
+
+/* Collapsed Sidebar Square Toggles */
+aside.collapsed nav { padding: 0; gap: 0; }
+aside.collapsed nav button {
+  flex: none;
+  height: 58px;
+  width: 58px;
+  justify-content: center;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--border);
+}
+aside.collapsed nav button:first-child { border-top: 1px solid var(--border); }
+aside.collapsed nav button.active {
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: #1a2536;
+  color: var(--accent);
+  box-shadow: inset 4px 0 0 var(--accent);
+}
 aside.collapsed nav button .lnum { display: block; }
 aside.collapsed nav button .lname { display: none; }
 
@@ -49,15 +69,28 @@ main { padding: clamp(12px, 1.5vh, 18px) clamp(16px, 2vw, 22px); flex: 1; overfl
 .lab.active { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .vwrap { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 
+/* Uniform Variant Buttons */
 .variant-toggle { display: flex; gap: 8px; margin-bottom: 10px; flex-shrink: 0; align-items: center; }
-.variant-toggle button { background: var(--panel2); border: 1px solid var(--border); color: var(--txt); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: clamp(12px, 1vw, 13px); }
-.variant-toggle button.on { border-color: var(--accent); color: var(--accent); font-weight: 700; }
-.variant-toggle button:disabled { opacity: .35; cursor: not-allowed; text-decoration: line-through; }
+.v-btn {
+  width: 135px;
+  background: var(--panel2);
+  border: 2px solid var(--border);
+  color: var(--txt);
+  padding: 7px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: clamp(12px, 1vw, 13px);
+  font-weight: 600;
+  text-align: center;
+  transition: all .15s ease;
+}
+.v-btn.on { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.v-btn:disabled { opacity: .35; cursor: not-allowed; text-decoration: line-through; }
 
-.variant-toggle button.v-pass { border-color: var(--good); color: var(--good); background: rgba(63,185,80,0.12); }
-.variant-toggle button.v-pass.on { background: rgba(63,185,80,0.25); border-width: 2px; font-weight: 800; }
-.variant-toggle button.v-attempt { border-color: var(--warn); color: var(--warn); background: rgba(210,153,34,0.12); }
-.variant-toggle button.v-attempt.on { background: rgba(210,153,34,0.25); border-width: 2px; font-weight: 800; }
+.v-btn.v-pass { border-color: var(--good); color: var(--good); background: rgba(63,185,80,0.12); }
+.v-btn.v-pass.on { background: rgba(63,185,80,0.25); font-weight: 800; }
+.v-btn.v-attempt { border-color: var(--warn); color: var(--warn); background: rgba(210,153,34,0.12); }
+.v-btn.v-attempt.on { background: rgba(210,153,34,0.25); font-weight: 800; }
 
 .vlock-note { font-size: clamp(11px, 0.9vw, 11.5px); color: #8b949e; font-style: italic; }
 
@@ -296,13 +329,27 @@ LABS.forEach((l,i)=>{
   if(i===0)b.classList.add('active');
   b.id='tab'+l.id; nav.appendChild(b);
 });
+
 function showLab(id){
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab'+id).classList.add('active');
   document.querySelectorAll('.lab').forEach(l=>l.classList.remove('active'));
   document.getElementById('lab'+id).classList.add('active');
+  
+  // Intelligent Auto-Advance Logic
+  if (!STATE.locked && !STATE.vlocked[id]) {
+    let hist = loadHistory();
+    let labHist = hist.variants[id] || {};
+    if (labHist['A'] === 100) {
+      setVariant(id, 'B');
+    } else {
+      setVariant(id, 'A');
+    }
+  }
+
   if(id===4){scrollChat('4A');scrollChat('4B');}
 }
+
 function scrollChat(key){const w=document.getElementById('win'+key);if(w)w.scrollTop=w.scrollHeight;}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('collapsed');}
 function setVariant(lab,v){
@@ -328,8 +375,8 @@ function labShell(id,innerA,innerB){
   const chatCls=id===4?' chat-lab':'';
   return `<section class="lab${chatCls}${id===1?' active':''}" id="lab${id}">
   <div class="variant-toggle">
-    <button id="vt${id}A" class="on" onclick="setVariant(${id},'A')">Variant A</button>
-    <button id="vt${id}B" onclick="setVariant(${id},'B')">Variant B</button>
+    <button id="vt${id}A" class="v-btn on" onclick="setVariant(${id},'A')">Variant A</button>
+    <button id="vt${id}B" class="v-btn" onclick="setVariant(${id},'B')">Variant B</button>
     <span class="vlock-note" id="vnote${id}"></span>
   </div>
   <div id="lab${id}A" class="vwrap" style="display:flex">${innerA}</div>
@@ -736,6 +783,7 @@ renderChoices('4A');renderChoices('4B');
 initCli('1A');
 initCli('1B');
 applyVariantHistory();
+showLab(1); // Initialize first lab with auto-advance logic
 
 const measurer=document.getElementById('measure');
 function fitSelect(s){
