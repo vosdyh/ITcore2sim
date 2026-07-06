@@ -38,7 +38,7 @@ This project is built entirely with standard web technologies, requiring no buil
   * Vanilla JavaScript (ES6+): State management, grading logic, dynamic SVG graph generation, and localStorage persistence.
   * Architecture: Single-file static application (index.html).
 
-##License
+## License
 *© 2026 jibbles*
 All Rights Reserved.
 Prepared for personal testing purposes only. Licensed under the MIT License.
