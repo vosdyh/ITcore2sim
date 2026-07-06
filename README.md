@@ -4,9 +4,9 @@ A sleek, responsive [web](https://vosdyh.github.io/ITcore2sim/) interface built 
 
 ## Features
 * 100% locally hosted.
-* Completely stateless.
-* Resets memory on browser refresh.
-* Zero data tracking.
+* Retain score history and attempt progress across browser refreshes.
+* Generates dynamic, CompTIA-style, adaptive SVG performance graphs 
+* No external telemetry or data collection.
 
 ## How to Run
 1. Clone or download this repository.
