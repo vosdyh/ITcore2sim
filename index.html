@@ -30,36 +30,43 @@ header h1 span { color: var(--accent); }
 #sideToggle:hover { border-color: var(--accent); color: var(--accent); }
 
 #layout { display: flex; flex: 1; min-height: 0; }
+
+/* Sidebar Navigation Rail */
 aside { width: 230px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: width .25s ease; flex-shrink: 0; overflow: hidden; }
-aside.collapsed { width: 58px; }
-aside nav { display: flex; flex-direction: column; flex: 1; padding: 8px; gap: 6px; }
-aside nav button { flex: 1; background: var(--panel2); border: 1px solid var(--border); color: var(--txt); border-radius: 8px; cursor: pointer; font-size: clamp(12px, 1vw, 14px); display: flex; align-items: center; padding: 0 14px; text-align: left; white-space: nowrap; overflow: hidden; min-height: 0; }
-aside nav button:hover { border-color: var(--accent); }
-aside nav button.active { border-color: var(--accent); color: var(--accent); background: #1a2536; font-weight: 700; }
+aside.collapsed { width: 65px; }
+aside nav { display: flex; flex-direction: column; flex: 1; padding: 0; gap: 0; }
+aside nav button { 
+  flex: 1; 
+  background: transparent; 
+  border: none; 
+  border-bottom: 1px solid var(--border); 
+  color: var(--txt); 
+  border-radius: 0; 
+  cursor: pointer; 
+  font-size: clamp(12px, 1vw, 14px); 
+  display: flex; 
+  align-items: center; 
+  padding: 0 14px; 
+  text-align: left; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  min-height: 0; 
+  transition: background .15s ease, color .15s ease;
+}
+aside nav button:active:not(:disabled) { transform: none; } /* Prevent rail breaking on click */
+aside nav button:hover { background: rgba(255,255,255,0.05); }
+aside nav button.active { 
+  color: var(--accent); 
+  background: #1a2536; 
+  font-weight: 700; 
+  box-shadow: inset 4px 0 0 var(--accent); 
+}
 aside nav button .lnum { display: none; font-size: 17px; font-weight: 700; }
 aside nav button .lname { overflow: hidden; text-overflow: ellipsis; }
 
-/* Collapsed Sidebar Square Toggles */
-aside.collapsed nav { padding: 0; gap: 0; }
-aside.collapsed nav button {
-  flex: none;
-  height: 58px;
-  width: 58px;
-  justify-content: center;
-  padding: 0;
-  border-radius: 0;
-  border: none;
-  border-bottom: 1px solid var(--border);
-}
-aside.collapsed nav button:first-child { border-top: 1px solid var(--border); }
-aside.collapsed nav button.active {
-  border: none;
-  border-bottom: 1px solid var(--border);
-  background: #1a2536;
-  color: var(--accent);
-  box-shadow: inset 4px 0 0 var(--accent);
-}
-aside.collapsed nav button .lnum { display: block; }
+/* Collapsed Sidebar State */
+aside.collapsed nav button { justify-content: center; padding: 0; }
+aside.collapsed nav button .lnum { display: block; text-align: center; }
 aside.collapsed nav button .lname { display: none; }
 
 /* Main Layout Fluidity */
