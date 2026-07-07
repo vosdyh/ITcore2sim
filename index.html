@@ -561,6 +561,135 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   header h1 { display: none; } /* Only show icon and timer */
   .hbtn { padding: 8px 12px; font-size: 12px; }
 }
+/* ==========================================
+   MOBILE-FIRST BREAKPOINT & UX OVERRIDES 
+   ========================================== */
+@media (max-width: 768px) {
+  /* 1. Global Viewport Shell Fixes */
+  body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* 2. Pure Clutter Suppression */
+  footer, 
+  .system-metadata, 
+  #copyright-notice,
+  .desktop-mini-rail,
+  [data-sidebar-type="collapsed-rail"] { 
+    display: none !important; 
+  }
+
+  /* 3. Header Grid Realignment */
+  header, .top-navigation-bar {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 8px 12px !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* Force Hamburger Button Visibility Overriding App Configuration Flags */
+  .menu-toggle, #hamburger-btn, #sideToggle {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Prevent Title Overflow & Text Truncation */
+  .lab-title, header h1 {
+    font-size: 14px !important;
+    max-width: 35vw !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 4. Sidebar To Slide-Out Overlay Drawer Conversion */
+  .sidebar, #left-navigation-menu, aside#sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    width: 80vw !important;
+    max-width: 320px !important;
+    background-color: #111a24 !important; /* 100% solid opacity baseline */
+    z-index: 2000 !important;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+    display: flex !important;
+  }
+
+  .sidebar.is-active, #left-navigation-menu.open, aside#sidebar.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  /* 5. Centralizing Settings Panel as a Mobile Modal */
+  .settings-panel, #settings-modal-box, #settingsOverlay .settings-card {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) scale(0.9) !important;
+    width: calc(100% - 32px) !important;
+    max-width: 400px !important;
+    z-index: 2100 !important;
+    margin: 0 !important;
+    transition: all 0.25s ease;
+  }
+
+  #settingsOverlay.open .settings-card {
+    transform: translate(-50%, -50%) scale(1) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* 6. Dynamic Viewport Layering (Z-Index Scale) */
+  main, .main-content-canvas { z-index: 1 !important; }
+  .floating-gear-btn, #settings-trigger, #settingsFab { z-index: 1000 !important; }
+  
+  /* Global Backdrop Element styling */
+  .ux-global-backdrop {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(2px);
+    z-index: 1500;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .ux-global-backdrop.show {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* 7. High-Fidelity Terminal Input Grid Wrapping */
+  .terminal-input-row, .command-builder-bar, .term-input {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 8px !important;
+    padding: 12px !important;
+    box-sizing: border-box;
+  }
+
+  .terminal-input-row select, 
+  .terminal-input-row button,
+  .command-builder-bar select,
+  .command-builder-bar button,
+  .term-input select,
+  .term-input button {
+    width: 100% !important;
+    height: 44px !important; /* Optimizing tap targets */
+    font-size: 16px !important; /* Prevents auto-zoom scaling issues */
+    box-sizing: border-box;
+  }
+}
 </style>
 
 <script>
@@ -616,6 +745,84 @@ function updateMobile(isMobile) {
   // Trigger resize logic for selects
   window.dispatchEvent(new Event('resize'));
 }
+// ==========================================
+// MOBILE UX STATE EXCLUSIVITY MANIPULATION
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+  // Inject the universal mobile backdrop if it does not explicitly exist in HTML markup
+  let backdrop = document.querySelector('.ux-global-backdrop');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.className = 'ux-global-backdrop';
+    document.body.appendChild(backdrop);
+  }
+
+  // Common UI target element lookups mapped to existing IDs
+  const sidebarMenu = document.getElementById('sidebar');
+  const settingsPanel = document.getElementById('settingsOverlay');
+  const menuToggleBtn = document.getElementById('sideToggle');
+  const settingsGearBtn = document.getElementById('settingsFab');
+
+  function syncBackdrop() {
+    const isSidebarActive = sidebarMenu?.classList.contains('mobile-open');
+    const isSettingsActive = settingsPanel?.classList.contains('open');
+    
+    if (isSidebarActive || isSettingsActive) {
+      backdrop.classList.add('show');
+    } else {
+      backdrop.classList.remove('show');
+    }
+  }
+
+  // 1. Sidebar Toggle Trigger Integration
+  if (menuToggleBtn) {
+    menuToggleBtn.addEventListener('click', (e) => {
+      // ENFORCE EXCLUSIVITY: Safely drop Settings state instantly if open
+      if (settingsPanel) {
+        settingsPanel.classList.remove('open');
+        settingsGearBtn?.classList.remove('active');
+      }
+      
+      // Handle native sidebar state toggle routines
+      sidebarMenu.classList.toggle('mobile-open');
+      syncBackdrop();
+    });
+  }
+
+  // 2. Settings Gear Toggle Trigger Integration
+  if (settingsGearBtn) {
+    settingsGearBtn.addEventListener('click', (e) => {
+      // ENFORCE EXCLUSIVITY: Safely dismiss Sidebar navigation drawer instantly if open
+      if (sidebarMenu) {
+        sidebarMenu.classList.remove('mobile-open');
+      }
+
+      // Handle native settings dialog state updates
+      // Note: toggleSettingsModal() is already defined, we hook into its state
+      syncBackdrop();
+    });
+  }
+
+  // 3. Automated Backdrop Dismissal Routine
+  backdrop.addEventListener('click', () => {
+    if (sidebarMenu) sidebarMenu.classList.remove('mobile-open');
+    if (settingsPanel) {
+        settingsPanel.classList.remove('open');
+        settingsGearBtn?.classList.remove('active');
+    }
+    backdrop.classList.remove('show');
+  });
+
+  // Hook into existing showLab to close sidebar on selection
+  const originalShowLab = window.showLab;
+  window.showLab = function(id) {
+    originalShowLab(id);
+    if (window.innerWidth <= 768) {
+      sidebarMenu.classList.remove('mobile-open');
+      backdrop.classList.remove('show');
+    }
+  };
+});
 </script>
 </div>
 
