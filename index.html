@@ -250,6 +250,238 @@ footer { background: var(--panel); border-top: 1px solid var(--border); padding:
   © 2026 jibbles. All Rights Reserved // Prepared for personal testing purposes only // Built with claude-fable-5, gemini-3.1-pro & gemini-3.1-pro-preview<br>
   <a href="https://github.com/vosdyh/ITcore2sim/blob/main/LICENSE" target="_blank" style="color: var(--accent); text-decoration: none; margin-top: 6px; display: inline-block;">Licensed under MIT</a>
 </footer>
+<!-- Settings FAB -->
+<button id="settingsFab" onclick="toggleSettingsModal()" title="Personalization Settings">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"></circle>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+  </svg>
+</button>
+
+<!-- Settings Modal -->
+<div id="settingsOverlay" class="overlay" onclick="if(event.target===this)toggleSettingsModal()">
+  <div class="settings-card">
+    <h3>Interface Configuration</h3>
+    <div class="setting-row">
+      <div class="setting-info">
+        <span class="setting-label">Warm Mode</span>
+        <span class="setting-desc">Eye-comfort sepia theme</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="warmToggle" onchange="updateTheme(this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="setting-row">
+      <div class="setting-info">
+        <span class="setting-label">Force Mobile View</span>
+        <span class="setting-desc">Simulate small screen layout</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="mobileToggle" onchange="updateMobile(this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <button class="hbtn" style="width:100%; margin-top:10px;" onclick="toggleSettingsModal()">Close Settings</button>
+  </div>
+</div>
+
+<style>
+/* Warm Mode Theme Variables */
+body[data-theme="warm"] {
+  --bg: #FFF5EB;
+  --panel: #F9EBDD;
+  --panel2: #F2DFCC;
+  --border: #E6D0B8;
+  --txt: #5C0909;
+  --accent: #D35400; /* Burnt Orange */
+  --good: #27AE60;
+  --bad: #E74C3C; /* Brighter Red for contrast against Maroon text */
+  --warn: #F39C12;
+}
+body[data-theme="warm"] .scenario, 
+body[data-theme="warm"] .note,
+body[data-theme="warm"] footer { color: #7D4B4B; }
+body[data-theme="warm"] header h1, 
+body[data-theme="warm"] .card h2 { color: #5C0909; }
+body[data-theme="warm"] .terminal { background: #2D1B1B; color: #F9EBDD; }
+
+body[data-theme="warm"] {
+  --bg: #FFF5EB;
+  --panel: #F9EBDD;
+  --panel2: #F2DFCC;
+  --border: #E6D0B8;
+  --txt: #5C0909;
+  --accent: #D35400; 
+  --good: #2D6A4F; /* Muted Forest Green */
+  --bad: #A93226;  /* Muted Terracotta Red */
+  --warn: #B7950B;
+}
+
+/* Warm Mode Specific Overrides */
+body[data-theme="warm"] .scenario, 
+body[data-theme="warm"] .note,
+body[data-theme="warm"] footer { color: #7D4B4B; }
+body[data-theme="warm"] header h1, 
+body[data-theme="warm"] .card h2 { color: #5C0909; }
+
+/* Fix 1: Message Bubble Text Visibility */
+body[data-theme="warm"] .msg { color: #ffffff !important; }
+body[data-theme="warm"] .msg.them { background: #4A3737; border-color: #5C4545; }
+body[data-theme="warm"] .msg.you { background: #2C3E50; border-color: #34495E; }
+
+/* Fix 2: Sidebar Buttons (Match Message Brown) */
+body[data-theme="warm"] aside nav button.active { 
+  background: #4A3737 !important; 
+  color: #F9EBDD !important; 
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+body[data-theme="warm"] aside nav button:hover:not(.active) { background: #E6D0B8; }
+
+/* Fix 3: Score Report Softening */
+body[data-theme="warm"] .lab-report { background: #F2DFCC; border-color: #D5C4B0; }
+body[data-theme="warm"] .lab-report h4 { color: #5C0909; }
+body[data-theme="warm"] .textbook { background: #4A3737; color: #F9EBDD; border-left-color: var(--accent); }
+body[data-theme="warm"] .textbook b { color: #FFD580; }
+body[data-theme="warm"] .score-big.fail { color: #A93226; }
+body[data-theme="warm"] .score-big.pass { color: #2D6A4F; }
+body[data-theme="warm"] .badge.fail { background: #FADBD8; color: #A93226; border-color: #E6B0AA; }
+body[data-theme="warm"] .badge.pass { background: #D4EFDF; color: #2D6A4F; border-color: #A9DFBF; }
+
+/* Fix 4: Reset Button Color Scheme */
+body[data-theme="warm"] #resetExam { background: #7B241C; color: #fff; }
+body[data-theme="warm"] #resetExam:hover { background: #922B21; }
+
+/* Terminal Contrast in Warm Mode */
+body[data-theme="warm"] .terminal { background: #1C1414; color: #D5C4B0; border-color: #3D2A2A; }
+
+/* Mobile Simulation */
+body.simulate-mobile aside { width: 0 !important; border: none !important; overflow: hidden; }
+body.simulate-mobile #sideToggle { display: none; }
+body.simulate-mobile .inner { max-width: 100%; padding: 10px; }
+body.simulate-mobile .field-grid { grid-template-columns: 1fr; }
+
+/* FAB Styling */
+#settingsFab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#settingsFab svg { width: 26px; height: 26px; }
+#settingsFab.active { transform: rotate(360deg); }
+
+/* Settings Modal Styling */
+.settings-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 320px;
+  margin: 25vh auto;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  transform: scale(0);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.overlay.open .settings-card { transform: scale(1); }
+.settings-card h3 { margin-bottom: 20px; color: var(--accent); font-size: 18px; }
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.setting-info { display: flex; flex-direction: column; }
+.setting-label { font-weight: 700; font-size: 14px; color: var(--txt); }
+.setting-desc { font-size: 11px; color: #8b949e; }
+
+/* Toggle Switch UI */
+.switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; cursor: pointer; inset: 0;
+  background-color: var(--panel2);
+  border: 1px solid var(--border);
+  transition: .3s; border-radius: 22px;
+}
+.slider:before {
+  position: absolute; content: ""; height: 14px; width: 14px;
+  left: 3px; bottom: 3px; background-color: var(--txt);
+  transition: .3s; border-radius: 50%;
+}
+input:checked + .slider { background-color: var(--accent); border-color: var(--accent); }
+input:checked + .slider:before { transform: translateX(22px); background-color: #fff; }
+</style>
+
+<script>
+(function initSettings() {
+  // Immediate execution to prevent theme flash
+  const savedTheme = localStorage.getItem('pbq_theme') === 'warm';
+  const savedMobile = localStorage.getItem('pbq_mobile') === 'true';
+  
+  if (savedTheme) document.body.setAttribute('data-theme', 'warm');
+  if (savedMobile) document.body.classList.add('simulate-mobile');
+
+  // Sync toggles once DOM is ready
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('warmToggle').checked = savedTheme;
+    document.getElementById('mobileToggle').checked = savedMobile;
+  });
+})();
+
+function toggleSettingsModal() {
+  const overlay = document.getElementById('settingsOverlay');
+  const fab = document.getElementById('settingsFab');
+  const isOpen = overlay.classList.contains('open');
+  
+  if (!isOpen) {
+    overlay.classList.add('open');
+    fab.classList.add('active');
+  } else {
+    overlay.classList.remove('open');
+    fab.classList.remove('active');
+    // Reset rotation for next click
+    setTimeout(() => fab.classList.remove('active'), 500);
+  }
+}
+
+function updateTheme(isWarm) {
+  if (isWarm) {
+    document.body.setAttribute('data-theme', 'warm');
+    localStorage.setItem('pbq_theme', 'warm');
+  } else {
+    document.body.removeAttribute('data-theme');
+    localStorage.setItem('pbq_theme', 'dark');
+  }
+}
+
+function updateMobile(isMobile) {
+  if (isMobile) {
+    document.body.classList.add('simulate-mobile');
+    localStorage.setItem('pbq_mobile', 'true');
+  } else {
+    document.body.classList.remove('simulate-mobile');
+    localStorage.setItem('pbq_mobile', 'false');
+  }
+  // Trigger resize logic for selects
+  window.dispatchEvent(new Event('resize'));
+}
+</script>
 </div>
 
 <div id="modal" class="overlay" onclick="if(event.target===this)closeReport()"><div class="report" id="reportBody"></div></div>
