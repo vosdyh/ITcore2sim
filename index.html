@@ -171,7 +171,7 @@ main { padding: clamp(12px, 1.5vh, 18px) clamp(16px, 2vw, 22px); flex: 1; overfl
 body.light-theme .scenario { color: var(--text-secondary); }
 .card.compact .scenario { font-size: clamp(12px, 1vw, 13px); line-height: 1.4; }
 
-.terminal { background: var(--bg-terminal); border: 1px solid var(--border-primary); border-radius: 6px; padding: 10px; font-family: 'Consolas', monospace; font-size: clamp(12px, 1vw, 13.5px); margin-bottom: 8px; white-space: pre-wrap; color: #ccc; }
+.terminal { background: var(--bg-terminal); border: 1px solid var(--border-primary); border-radius: 6px; padding: 10px; font-family: 'Consolas', monospace; font-size: clamp(12px, 1vw, 13.5px); margin-bottom: 8px; white-space: pre-wrap; color: #ccc; overflow-y: auto; overflow-x: hidden; }
 body.light-theme .terminal { color: #D5C4B0; }
 .terminal .err { color: var(--accent-bad); }
 .terminal .ok { color: var(--accent-good); }
@@ -300,6 +300,69 @@ body.light-theme .confirm-box p { color: var(--text-secondary); }
 .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: var(--text-primary); transition: .3s; border-radius: 50%; }
 input:checked + .slider { background-color: var(--accent-primary); border-color: var(--accent-primary); }
 input:checked + .slider:before { transform: translateX(22px); background-color: #fff; }
+@media (max-width: 576px) {
+  header {
+    padding: 8px 12px !important;
+  }
+  main {
+    padding: 8px 10px !important;
+  }
+  .card {
+    padding: 10px 12px !important;
+    margin-bottom: 8px !important;
+  }
+  .card h2 {
+    font-size: 14px !important;
+  }
+  .scenario {
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+  }
+  #settingsFab {
+    width: 42px !important;
+    height: 42px !important;
+    bottom: 12px !important;
+    right: 12px !important;
+  }
+  .term-input {
+    display: grid !important;
+    grid-template-columns: auto 1fr !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+  .term-input span {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    white-space: nowrap !important;
+    align-self: center !important;
+    font-size: 13px !important;
+    padding-top: 0 !important;
+  }
+  .term-input select {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+  .term-input select:nth-of-type(1) {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+  .term-input select:nth-of-type(2) {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+  }
+  .term-input select:nth-of-type(3) {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+  }
+  .term-input button {
+    grid-column: 1 / -1 !important;
+    grid-row: 4 !important;
+    width: 100% !important;
+    padding: 8px !important;
+    margin-top: 4px !important;
+  }
+}
 </style>
 </head>
 <body>
