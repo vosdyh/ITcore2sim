@@ -127,14 +127,14 @@ header h1 span { color: var(--accent-primary); }
 /* Sidebar Navigation Rail */
 aside { width: 230px; background: var(--bg-panel); border-right: 1px solid var(--border-primary); display: flex; flex-direction: column; transition: width .25s ease; flex-shrink: 0; overflow: hidden; }
 aside.collapsed { width: 65px; }
-aside nav { display: flex; flex-direction: column; flex: 1; padding: 0; gap: 0; }
-aside nav button { flex: 1; background: transparent; border: none; border-bottom: 1px solid var(--border-primary); color: var(--text-primary); border-radius: 0; cursor: pointer; font-size: clamp(12px, 1vw, 14px); display: flex; align-items: center; padding: 0 14px; text-align: left; white-space: nowrap; overflow: hidden; min-height: 0; transition: background .15s ease, color .15s ease; }
+aside nav { display: flex; flex-direction: column; flex: 1; padding: 0; gap: 0; overflow-y: auto; }
+aside nav button { flex: 0 0 65px; background: transparent; border: none; border-bottom: 1px solid var(--border-primary); color: var(--text-primary); border-radius: 0; cursor: pointer; font-size: clamp(12px, 1vw, 14px); display: flex; align-items: center; padding: 0 14px; text-align: left; white-space: normal; overflow: hidden; transition: background .15s ease, color .15s ease; }
 aside nav button:active:not(:disabled) { transform: none; }
 aside nav button:hover { background: rgba(125,125,125,0.08); }
 aside nav button.active { color: var(--accent-primary); background: var(--sidebar-active-bg); font-weight: 700; box-shadow: inset 4px 0 0 var(--accent-primary); }
 body.light-theme aside nav button.active { color: var(--text-inverted); }
 aside nav button .lnum { display: none; font-size: 17px; font-weight: 700; }
-aside nav button .lname { overflow: hidden; text-overflow: ellipsis; }
+aside nav button .lname { line-height: 1.25; }
 
 /* Collapsed Sidebar State */
 aside.collapsed nav button { justify-content: center; padding: 0; }
@@ -163,15 +163,16 @@ main { padding: clamp(12px, 1.5vh, 18px) clamp(16px, 2vw, 22px); flex: 1; overfl
 .card { background: var(--bg-panel); border: 1px solid var(--border-primary); border-radius: 8px; padding: clamp(12px, 1.5vh, 16px) clamp(14px, 1.5vw, 18px); margin-bottom: clamp(8px, 1vh, 12px); }
 .card:last-child { margin-bottom: 0; }
 .card.compact { padding: clamp(10px, 1.2vh, 14px) clamp(12px, 1.2vw, 16px); margin-bottom: clamp(6px, 1vh, 10px); }
-.flex-card { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.flex-card { display: flex; flex-direction: column; flex: 0 1 auto; min-height: 0; }
 
-.card h2 { font-size: clamp(14px, 1.3vw, 16px); color: var(--text-heading); margin-bottom: 6px; }
+.card h2 { font-size: clamp(14px, 1.3vw, 16px); color: var(--text-heading); margin-bottom: 6px; text-align: left; }
 .card h3 { font-size: clamp(13px, 1.2vw, 14.5px); color: var(--accent-primary); margin: 10px 0 4px; }
 .scenario { font-size: clamp(13px, 1.2vw, 14.5px); line-height: 1.5; color: #adbac7; }
 body.light-theme .scenario { color: var(--text-secondary); }
 .card.compact .scenario { font-size: clamp(12px, 1vw, 13px); line-height: 1.4; }
 
-.terminal { background: var(--bg-terminal); border: 1px solid var(--border-primary); border-radius: 6px; padding: 10px; font-family: 'Consolas', monospace; font-size: clamp(12px, 1vw, 13.5px); margin-bottom: 8px; white-space: pre-wrap; color: #ccc; overflow-y: auto; overflow-x: hidden; }
+.terminal { background: var(--bg-terminal); border: 1px solid var(--border-primary); border-radius: 6px; padding: 10px; font-family: 'Consolas', monospace; font-size: clamp(12px, 1vw, 13.5px); margin-bottom: 8px; white-space: pre-wrap; color: #ccc; overflow-y: auto; overflow-x: hidden; max-height: 350px; scrollbar-width: none; }
+.terminal::-webkit-scrollbar { display: none; }
 body.light-theme .terminal { color: #D5C4B0; }
 .terminal .err { color: var(--accent-bad); }
 .terminal .ok { color: var(--accent-good); }
@@ -188,10 +189,11 @@ label { display: block; font-size: clamp(12px, 1vw, 13.5px); margin: 6px 0 2px; 
 .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 16px; }
 .field-grid label { margin: 4px 0 2px; }
 
-.chat-card { display: flex; flex-direction: column; flex: 1; min-height: 0; background: var(--bg-panel); border: 1px solid var(--border-primary); border-radius: 8px; padding: clamp(12px, 1.5vh, 16px) clamp(14px, 1.5vw, 18px); }
+.chat-card { display: flex; flex-direction: column; flex: 0 1 auto; min-height: 0; background: var(--bg-panel); border: 1px solid var(--border-primary); border-radius: 8px; padding: clamp(12px, 1.5vh, 16px) clamp(14px, 1.5vw, 18px); }
 .chat-card h2 { font-size: clamp(14px, 1.3vw, 16px); color: var(--text-heading); margin-bottom: 6px; flex-shrink: 0; }
 .chat-card .scenario { flex-shrink: 0; }
-.chat-window { background: var(--bg-panel-secondary); border: 1px solid var(--border-primary); border-radius: 6px; padding: 12px; flex: 1; min-height: 0; overflow-y: auto; margin: 10px 0; display: flex; flex-direction: column; }
+.chat-window { background: var(--bg-panel-secondary); border: 1px solid var(--border-primary); border-radius: 6px; padding: 12px; flex: 1; min-height: 0; max-height: 350px; overflow-y: auto; margin: 10px 0; display: flex; flex-direction: column; scrollbar-width: none; }
+.chat-window::-webkit-scrollbar { display: none; }
 .chat-window .spacer { flex: 1; } 
 .msg { padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; font-size: clamp(12px, 1vw, 14px); max-width: 85%; line-height: 1.5; flex-shrink: 0; color: var(--text-inverted); }
 .msg.them { background: var(--msg-them-bg); border: 1px solid var(--msg-them-border); align-self: flex-start; }
@@ -799,7 +801,7 @@ X:\\Sources&gt;bootrec /fixboot
   </div>
   <p class="note" style="flex-shrink: 0;"><b>Deceptive Traps:</b> Endless loops of running fixboot, or the student uses diskpart to format the primary C:\\Windows NTFS partition instead of the hidden FAT32 EFI System Partition (ESP), resulting in catastrophic data loss and immediate PBQ failure.</p>
 </div>
-<div class="steps-container" style="overflow-y: auto; flex: 1; min-height: 0; padding-right: 8px; margin-top: 10px;">
+<div class="steps-container" style="overflow-y: auto; flex: 0 1 auto; padding-right: 8px; margin-top: 10px;">
   <h3 style="margin-top: 4px;">Multi-Step Resolution Sequence</h3>
   <ol style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 4px 16px; margin-left: 22px; font-size: clamp(12px, 1vw, 13.5px); color: #adbac7; line-height: 1.4;">
     <li>Execute <b>diskpart</b> to enter the disk partition utility.</li>
@@ -1022,7 +1024,7 @@ const lab10B=`<div class="card flex-card">
     <button class="hbtn" style="padding: 6px 12px; font-size: clamp(12px, 1vw, 13.5px);" onclick="execCli('10B')">Execute</button>
   </div>
 </div>
-<div class="steps-container" style="overflow-y: auto; flex: 1; min-height: 0; padding-right: 8px; margin-top: 10px;">
+<div class="steps-container" style="overflow-y: auto; flex: 0 1 auto; padding-right: 8px; margin-top: 10px;">
   <h3 style="margin-top: 4px;">7-Step Malware Remediation Process</h3>
   <div class="field-grid" style="grid-template-columns: 1fr;">
     ${[1,2,3,4,5,6,7].map(i => `<div class="step-row"><span class="num">${i}</span><select id="d10B_step${i}" style="flex:1;">${rem10Bopts.map((o,idx)=>`<option value="${idx}">${o}</option>`).join('')}</select></div>`).join('')}
