@@ -648,12 +648,138 @@ const STATE = {
   chatStep:{'4A':0,'4B':0},
   apply9A:false,
   apply9B:false,
-  dyn:{9:{macs:[],mode:'',targetMac:''},10:{phish:'',cli:'',phishOpts:[]}}
+  dyn:{2:{},3:{},5:{},6:{},7:{},8:{},9:{macs:[],mode:'',targetMac:''},10:{phish:'',cli:'',phishOpts:[]}}
 };
 
 // --- LAB RANDOMIZATION LOGIC ---
 function genMac(){ return "XX:XX:XX:XX:XX:XX".replace(/X/g, function() { return "0123456789ABCDEF".charAt(Math.floor(Math.random() * 16)); }); }
+function shuffle(array) {
+  let currentIndex = array.length, randomIndex;
+  while (currentIndex > 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  }
+  return array;
+}
+
 function initDynamic(){
+  // Extract and shuffle options for Lab 2
+  const gpoOptsA_raw = ['Open Local Security Policy (secpol.msc)','Execute gpresult /r','Execute gpupdate /force','Reboot machine immediately','Instruct user to Log Off and Log Back In','Edit registry HKLM policy keys manually'];
+  STATE.dyn[2].A = [{val:'0', t:'-- Select Action --'}].concat(shuffle(gpoOptsA_raw.map((t, i) => ({val: String(i+1), t}))));
+
+  const gpoOptsB_raw = ['Execute ipconfig /release','Execute ipconfig /flushdns','Execute ipconfig /registerdns','Execute gpupdate /force','Edit registry HKLM policy keys manually','Assume GPO is broken; rebuild GPO from scratch'];
+  STATE.dyn[2].B = [{val:'0', t:'-- Select Action --'}].concat(shuffle(gpoOptsB_raw.map((t, i) => ({val: String(i+1), t}))));
+
+  // Extract and shuffle options for Lab 3
+  const d3A1_raw = ['Notepad (.txt configuration)', 'Windows System Image Manager (WSIM)', 'Registry Editor (regedit)'];
+  STATE.dyn[3].A1 = [{val:'0', t:'-- Select --'}].concat(shuffle(d3A1_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d3A2_raw = ['unattend.ini', 'deploy.txt', 'unattend.xml'];
+  STATE.dyn[3].A2 = [{val:'0', t:'-- Select --'}].concat(shuffle(d3A2_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d3A3_raw = ['sysprep.exe /generalize /oobe /unattend:unattend.xml', 'sysprep.exe /audit /reboot', 'dism /online /cleanup-image /restorehealth'];
+  STATE.dyn[3].A3 = [{val:'0', t:'-- Select --'}].concat(shuffle(d3A3_raw.map((t, i) => ({val: String(i+1), t}))));
+
+  const d3B1_raw = ['msiexec /i package.msi /qn /norestart', 'msiexec /i package.msi /interactive /forcerestart', 'package.msi /silent /rebootnow'];
+  STATE.dyn[3].B1 = [{val:'0', t:'-- Select --'}].concat(shuffle(d3B1_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d3B2_raw = ['setup.exe /verbose /promptall', 'setup.exe /S /v"/qn"', 'setup.exe /uninstall /f'];
+  STATE.dyn[3].B2 = [{val:'0', t:'-- Select --'}].concat(shuffle(d3B2_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d3B3_raw = ['/forcerestart', '/qb', '/norestart'];
+  STATE.dyn[3].B3 = [{val:'0', t:'-- Select --'}].concat(shuffle(d3B3_raw.map((t, i) => ({val: String(i+1), t}))));
+
+  // Lab 4 Chat Randomization
+  CHAT['4A'].steps.forEach(step => {
+    shuffle(step.choices);
+  });
+  CHAT['4B'].steps.forEach(step => {
+    shuffle(step.choices);
+  });
+
+  // Lab 5
+  const t5Aopts_raw = ['Reboot the machine to clear the lock screen','IMMEDIATELY disconnect machine from network (Unplug Ethernet / Disable NIC)','Run a full Antivirus scan while connected to the network','Leave the machine powered ON to preserve RAM state','Escalate the ticket to the Security/IR department','Pay the ransom from petty cash'];
+  STATE.dyn[5].A = [{val:'0', t:'-- Select Action --'}].concat(shuffle(t5Aopts_raw.map((t, i) => ({val: String(i+1), t}))));
+  const t5Bopts_raw = ['Run malware scans in normal boot mode immediately','Disconnect from the network (Quarantine)','Disable System Restore','Reboot the machine into Safe Mode','Update anti-malware signatures (isolated) and run a full system scan','Re-enable System Restore and create a clean restore point'];
+  STATE.dyn[5].B = [{val:'0', t:'-- Select Action --'}].concat(shuffle(t5Bopts_raw.map((t, i) => ({val: String(i+1), t}))));
+
+  // Lab 6
+  const d6A1_raw = ['Change router global channel to 11', 'Forget the saturated 2.4GHz SSID', 'Toggle Airplane Mode repeatedly'];
+  STATE.dyn[6].A1 = [{val:'0', t:'-- Select --'}].concat(shuffle(d6A1_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d6A2_raw = ['Corporate 5GHz SSID (802.11ac/ax)', 'Same 2.4GHz SSID with static IP', 'Open guest hotspot'];
+  STATE.dyn[6].A2 = [{val:'0', t:'-- Select --'}].concat(shuffle(d6A2_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d6A3_raw = ['WEP', 'WPA2/WPA3-Enterprise', 'WPA2-Personal (pre-shared key)'];
+  STATE.dyn[6].A3 = [{val:'0', t:'-- Select --'}].concat(shuffle(d6A3_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d6A4_raw = ['Pre-shared key taped to the breakroom wall', 'MAC address exemption only', 'Domain credentials via 802.1X / RADIUS server authentication'];
+  STATE.dyn[6].A4 = [{val:'0', t:'-- Select --'}].concat(shuffle(d6A4_raw.map((t, i) => ({val: String(i+1), t}))));
+
+  const d6B1_raw = ['143', '993', '80'];
+  STATE.dyn[6].B1 = [{val:'0', t:'-- Select --'}].concat(shuffle(d6B1_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d6B2_raw = ['None', 'SSL/TLS', 'ROT13'];
+  STATE.dyn[6].B2 = [{val:'0', t:'-- Select --'}].concat(shuffle(d6B2_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d6B3_raw = ['25', '110', '587', '465'];
+  STATE.dyn[6].B3 = [{val:'0', t:'-- Select --'}].concat(shuffle(d6B3_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d6B4_raw = ['None', 'STARTTLS or SSL/TLS', 'WEP'];
+  STATE.dyn[6].B4 = [{val:'0', t:'-- Select --'}].concat(shuffle(d6B4_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d6B5_raw = ['Unchecked', 'Checked'];
+  STATE.dyn[6].B5 = [{val:'0', t:'-- Select --'}].concat(shuffle(d6B5_raw.map((t, i) => ({val: String(i+1), t}))));
+
+  // Lab 7
+  const d7A1_raw = ['Initialize Disk', 'Convert to Basic Disk', 'Import Foreign Disks', 'Delete Volume'];
+  STATE.dyn[7].A1 = [{val:'0', t:'-- Select --'}].concat(shuffle(d7A1_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d7A2_raw = ['Cancel and reformat', 'Verify layout and click OK to mount without wiping', 'Convert to GPT immediately'];
+  STATE.dyn[7].A2 = [{val:'0', t:'-- Select --'}].concat(shuffle(d7A2_raw.map((t, i) => ({val: String(i+1), t}))));
+
+  const d7B1_raw = ['MBR (Master Boot Record)', 'GPT (GUID Partition Table)'];
+  STATE.dyn[7].B1 = [{val:'0', t:'-- Select --'}].concat(shuffle(d7B1_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d7B2_raw = ['New Simple Volume', 'Shrink Volume', 'Mark Partition as Active'];
+  STATE.dyn[7].B2 = [{val:'0', t:'-- Select --'}].concat(shuffle(d7B2_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d7B3_raw = ['FAT32', 'exFAT', 'NTFS'];
+  STATE.dyn[7].B3 = [{val:'0', t:'-- Select --'}].concat(shuffle(d7B3_raw.map((t, i) => ({val: String(i+1), t}))));
+
+  // Lab 8
+  const devs8A_raw = [['Laser Printer','S'],['Core Switch','U'],['Space Heater','S'],['NAS Array','U'],['Paper Shredder','S'],['Router','U'],['Primary Workstation','U'],['Vacuum','S']];
+  STATE.dyn[8].devs8A = shuffle(devs8A_raw.map((d, i) => ({name: d[0], correct: d[1], origIndex: i})));
+
+  const d8B1_raw = ['1000W', '~800W (VA x 0.8 Power Factor)', '1250W'];
+  STATE.dyn[8].B1 = [{val:'0', t:'-- Select --'}].concat(shuffle(d8B1_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d8B2_raw = ['100% of calculated Wattage', 'No more than 80% of calculated Wattage capacity', '120% — UPS units have headroom'];
+  STATE.dyn[8].B2 = [{val:'0', t:'-- Select --'}].concat(shuffle(d8B2_raw.map((t, i) => ({val: String(i+1), t}))));
+  const d8B3_raw = ['All three devices on UPS-1 (900W total)', 'Server A + Server B on UPS-1; provision secondary UPS for the Core Switch spillover', 'Daisy-chain UPS-1 into a surge protector for extra capacity'];
+  STATE.dyn[8].B3 = [{val:'0', t:'-- Select --'}].concat(shuffle(d8B3_raw.map((t, i) => ({val: String(i+1), t}))));
+
+  // Lab 9
+  const questions9A_raw = [
+    {id: 'd9A1', label: 'Internet Location:', opts: ['Outside (Internet) Zone', 'Screened Subnet / DMZ', 'Internal LAN']},
+    {id: 'd9A2', label: 'Firewall/Router Placement:', opts: ['Directly behind Internet', 'Inside DMZ only', 'Inside Internal LAN']},
+    {id: 'd9A3', label: 'Wireless Access Point (WAP) Placement:', opts: ['Outside Zone', 'Screened Subnet / DMZ', 'Inside Internal LAN']},
+    {id: 'd9A4', label: 'Xbox Console Placement:', opts: ['Connected to WAP in LAN', 'Directly behind Internet', 'DMZ']},
+    {id: 'd9A5', label: 'Windows PC Placement:', opts: ['Connected to Firewall Internal Zone', 'DMZ', 'Outside Zone']},
+    {id: 'd9A6', label: 'Port Forwarding Rule (RDP to PC):', opts: ['Forward TCP 443 to PC', 'Forward TCP 3389 to PC Static IP', 'Forward UDP 3389 to Xbox']},
+    {id: 'd9A7', label: 'Xbox NAT Configuration:', opts: ['Enable UPnP', 'Disable UPnP', 'Block Xbox MAC address']}
+  ];
+  STATE.dyn[9].A = shuffle(questions9A_raw.map(q => {
+    return {
+      id: q.id,
+      label: q.label,
+      opts: [{val: '0', t: '-- Select --'}].concat(q.opts.map((opt, idx) => ({val: String(idx+1), t: opt})))
+    }
+  }));
+
+  const questions9B_raw = [
+    {type: 'select', id: 'd9B1', label: 'SSID Broadcast (Stealth Requirement):', opts: ['ON (Visible)', 'OFF (Hidden)']},
+    {type: 'select', id: 'd9B2', label: 'Security Mode:', opts: ['WEP', 'WPA2-Personal', 'WPA3-Personal']},
+    {type: 'select', id: 'd9B3', label: 'MAC Filtering Mode:', opts: ['Allow Only (Whitelist)', 'Deny Only (Blacklist)', 'Disabled']},
+    {type: 'input', id: 'd9B4', label: 'Target MAC Address(es) (Comma separated):', placeholder: 'Enter MAC addresses...'},
+    {type: 'input', id: 'd9B5', label: 'Content Filtering (Block keywords, e.g. Social Media, Streaming):', placeholder: 'Enter categories/keywords to block...'}
+  ];
+  STATE.dyn[9].B = shuffle(questions9B_raw.map(q => {
+    if (q.type === 'select') {
+      return {
+        ...q,
+        opts: [{val: '0', t: '-- Select --'}].concat(q.opts.map((opt, idx) => ({val: String(idx+1), t: opt})))
+      };
+    }
+    return q;
+  }));
+
   let m1=genMac(), m2=genMac(), m3=genMac(), bad=genMac();
   STATE.dyn[9].macs = [m1,m2,m3];
   if(Math.random()>0.5){ STATE.dyn[9].mode='allow'; STATE.dyn[9].targetMac=`${m1},${m2},${m3}`; }
@@ -909,15 +1035,13 @@ function execCli(key) {
 }
 
 // --- LAB 2 — GROUP POLICY ---
-const gpoOptsA=['-- Select Action --','Open Local Security Policy (secpol.msc)','Execute gpresult /r','Execute gpupdate /force','Reboot machine immediately','Instruct user to Log Off and Log Back In','Edit registry HKLM policy keys manually'];
-const gpoOptsB=['-- Select Action --','Execute ipconfig /release','Execute ipconfig /flushdns','Execute ipconfig /registerdns','Execute gpupdate /force','Edit registry HKLM policy keys manually','Assume GPO is broken; rebuild GPO from scratch'];
-function selRow(id,n,opts){return `<div class="step-row"><span class="num">${n}</span><select id="${id}">${opts.map((o,i)=>`<option value="${i}">${o}</option>`).join('')}</select></div>`;}
-const lab2A=`<div class="card"><h2>OU Relocation — Missing Drive Mappings</h2><p class="scenario">An employee profile has been moved from the "Sales" Organizational Unit (OU) to "Management" in Active Directory, but the user lacks their new Management network drive mappings. From an elevated command prompt, select the correct ordered sequence of actions.</p><h3>Ordered Resolution Steps</h3>${selRow('gpo2A1',1,gpoOptsA)}${selRow('gpo2A2',2,gpoOptsA)}${selRow('gpo2A3',3,gpoOptsA)}</div>`;
-const lab2B=`<div class="card"><h2>Blocked Policy — Stale DNS to Decommissioned DC</h2><p class="scenario">A machine refuses to pull new security compliance templates. The local DNS cache is pointing to a decommissioned Domain Controller. Select the correct ordered sequence of actions to restore policy synchronization.</p><h3>Ordered Resolution Steps</h3>${selRow('gpo2B1',1,gpoOptsB)}${selRow('gpo2B2',2,gpoOptsB)}${selRow('gpo2B3',3,gpoOptsB)}</div>`;
+function selRow(id,n,opts){return `<div class="step-row"><span class="num">${n}</span><select id="${id}">${opts.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select></div>`;}
+const lab2A=`<div class="card"><h2>OU Relocation — Missing Drive Mappings</h2><p class="scenario">An employee profile has been moved from the "Sales" Organizational Unit (OU) to "Management" in Active Directory, but the user lacks their new Management network drive mappings. From an elevated command prompt, select the correct ordered sequence of actions.</p><h3>Ordered Resolution Steps</h3>${selRow('gpo2A1',1,STATE.dyn[2].A)}${selRow('gpo2A2',2,STATE.dyn[2].A)}${selRow('gpo2A3',3,STATE.dyn[2].A)}</div>`;
+const lab2B=`<div class="card"><h2>Blocked Policy — Stale DNS to Decommissioned DC</h2><p class="scenario">A machine refuses to pull new security compliance templates. The local DNS cache is pointing to a decommissioned Domain Controller. Select the correct ordered sequence of actions to restore policy synchronization.</p><h3>Ordered Resolution Steps</h3>${selRow('gpo2B1',1,STATE.dyn[2].B)}${selRow('gpo2B2',2,STATE.dyn[2].B)}${selRow('gpo2B3',3,STATE.dyn[2].B)}</div>`;
 
 // --- LAB 3 — UNATTENDED DEPLOYMENT ---
-const lab3A=`<div class="card"><h2>Automated Answer File Image Rollout</h2><p class="scenario">Configure an automated corporate image rollout requiring zero human interaction during installation (OOBE bypass, timezone setting, partition creation) on a prepared reference machine.</p><label>1. Tool used to generate the answer file:</label><select id="d3A1"><option value="0">-- Select --</option><option value="1">Notepad (.txt configuration)</option><option value="2">Windows System Image Manager (WSIM)</option><option value="3">Registry Editor (regedit)</option></select><label>2. Correct answer file format/name:</label><select id="d3A2"><option value="0">-- Select --</option><option value="1">unattend.ini</option><option value="2">deploy.txt</option><option value="3">unattend.xml</option></select><label>3. Command to strip the machine's unique SID and automate OOBE:</label><select id="d3A3"><option value="0">-- Select --</option><option value="1">sysprep.exe /generalize /oobe /unattend:unattend.xml</option><option value="2">sysprep.exe /audit /reboot</option><option value="3">dism /online /cleanup-image /restorehealth</option></select></div>`;
-const lab3B=`<div class="card"><h2>Command Line Silent Patch Deployment</h2><p class="scenario">Deploy an executable security patch to hundreds of endpoint nodes without prompting end-users or interrupting their workflow. A midday mass reboot is an instant failure.</p><label>1. Correct silent install command for an .msi package:</label><select id="d3B1"><option value="0">-- Select --</option><option value="1">msiexec /i package.msi /qn /norestart</option><option value="2">msiexec /i package.msi /interactive /forcerestart</option><option value="3">package.msi /silent /rebootnow</option></select><label>2. Correct silent switch chain for a wrapped .exe installer:</label><select id="d3B2"><option value="0">-- Select --</option><option value="1">setup.exe /verbose /promptall</option><option value="2">setup.exe /S /v"/qn"</option><option value="3">setup.exe /uninstall /f</option></select><label>3. Which switch prevents the mass midday reboot event?</label><select id="d3B3"><option value="0">-- Select --</option><option value="1">/forcerestart</option><option value="2">/qb</option><option value="3">/norestart</option></select></div>`;
+const lab3A=`<div class="card"><h2>Automated Answer File Image Rollout</h2><p class="scenario">Configure an automated corporate image rollout requiring zero human interaction during installation (OOBE bypass, timezone setting, partition creation) on a prepared reference machine.</p><label>1. Tool used to generate the answer file:</label><select id="d3A1">${STATE.dyn[3].A1.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select><label>2. Correct answer file format/name:</label><select id="d3A2">${STATE.dyn[3].A2.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select><label>3. Command to strip the machine's unique SID and automate OOBE:</label><select id="d3A3">${STATE.dyn[3].A3.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select></div>`;
+const lab3B=`<div class="card"><h2>Command Line Silent Patch Deployment</h2><p class="scenario">Deploy an executable security patch to hundreds of endpoint nodes without prompting end-users or interrupting their workflow. A midday mass reboot is an instant failure.</p><label>1. Correct silent install command for an .msi package:</label><select id="d3B1">${STATE.dyn[3].B1.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select><label>2. Correct silent switch chain for a wrapped .exe installer:</label><select id="d3B2">${STATE.dyn[3].B2.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select><label>3. Which switch prevents the mass midday reboot event?</label><select id="d3B3">${STATE.dyn[3].B3.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select></div>`;
 
 // --- LAB 4 — LIVE CHAT ---
 const CHAT={'4A':{intro:[{who:'them',t:"THIS IS UNACCEPTABLE. I am the VP of Global Sales and I am LOCKED OUT before a board call in 10 minutes. Bypass this lock NOW or I'm calling your director."}],steps:[{them:"Well?? I don't have time for scripts. UNLOCK IT.",choices:[{t:'"Sir, you need to calm down before I can assist you."',ok:false},{t:'"I understand how critical this is for you."',ok:true},{t:'"Okay, given your position I\'ll bypass the lock immediately."',ok:false}]},{them:"Fine. So you're fixing it right now, yes?",choices:[{t:'"I can certainly help you get this resolved right away."',ok:true},{t:'"Policy is policy — there is nothing I can do quickly."',ok:false},{t:'"I\'ve already unlocked it, no verification needed for executives."',ok:false}]},{them:"Great. Just unlock it. What else do you possibly need?",choices:[{t:'"Nothing else — you\'re unlocked. Have a great board call!"',ok:false},{t:'"For security purposes, could you please verify your Employee ID or PIN?"',ok:true},{t:'"Can you email me from your personal Gmail to confirm identity?"',ok:false}]}]},'4B':{intro:[{who:'them',t:"Hi — I'm locked out of the finance database and I need an administrative override immediately. My chat name checks out, just push the reset through."}],steps:[{them:"Come on, you can see my profile name right there. Just reset it.",choices:[{t:'"Your chat profile is sufficient — resetting the password now."',ok:false},{t:'"I\'m unable to perform an immediate override, but I can absolutely help you through the secure process."',ok:true},{t:'"Overrides aren\'t my department. Goodbye."',ok:false}]},{them:"Ugh. Fine. Call me at 555-0199, that's my cell, and verify me there.",choices:[{t:'"Sure, calling the number you just gave me now."',ok:false},{t:'"I\'ll initiate a callback to your registered desk phone listed in the internal directory."',ok:true},{t:'"No calls needed — just tell me your mother\'s maiden name here in chat."',ok:false}]},{them:"Okay okay. What else do you need to grant the database access?",choices:[{t:'"Nothing — access granted after the callback."',ok:false},{t:'"Sensitive database access requires manager approval in the ticketing system plus MFA token verification."',ok:true},{t:'"I\'ll grant temporary admin rights to skip the paperwork."',ok:false}]}]}};
@@ -928,46 +1052,33 @@ const lab4A=chatHTML('4A','Abrasive Executive — Locked Account','A frantic cor
 const lab4B=chatHTML('4B','Social Engineering Counter-Measures','A user claims they are locked out of a critical database and requests an immediate administrative override. Verify without falling for the social engineering payload.');
 
 // --- LAB 5 — TRIAGE QUEUES ---
-const t5Aopts=['-- Select Action --','Reboot the machine to clear the lock screen','IMMEDIATELY disconnect machine from network (Unplug Ethernet / Disable NIC)','Run a full Antivirus scan while connected to the network','Leave the machine powered ON to preserve RAM state','Escalate the ticket to the Security/IR department','Pay the ransom from petty cash'];
-const t5Bopts=['-- Select Action --','Run malware scans in normal boot mode immediately','Disconnect from the network (Quarantine)','Disable System Restore','Reboot the machine into Safe Mode','Update anti-malware signatures (isolated) and run a full system scan','Re-enable System Restore and create a clean restore point'];
-const lab5A=`<div class="card"><h2>Ticket #4471 — Ransomware Lock Screen (Active Encryption)</h2><p class="scenario">A ticket contains a screenshot of a user's machine displaying a lock screen while their local network shares are rapidly encrypting. Order the first three response actions. Rebooting destroys volatile RAM evidence; scanning while networked lets ransomware jump subnets.</p>${selRow('t5A1',1,t5Aopts)}${selRow('t5A2',2,t5Aopts)}${selRow('t5A3',3,t5Aopts)}</div>`;
-const lab5B=`<div class="card"><h2>Ticket #4472 — Rogue Antivirus / Browser Hijack</h2><p class="scenario">User reports rapid browser hijacking, endless fake security alerts, and system sluggishness. Order all five remediation actions per malware-removal best practice.</p>${selRow('t5B1',1,t5Bopts)}${selRow('t5B2',2,t5Bopts)}${selRow('t5B3',3,t5Bopts)}${selRow('t5B4',4,t5Bopts)}${selRow('t5B5',5,t5Bopts)}</div>`;
+const lab5A=`<div class="card"><h2>Ticket #4471 — Ransomware Lock Screen (Active Encryption)</h2><p class="scenario">A ticket contains a screenshot of a user's machine displaying a lock screen while their local network shares are rapidly encrypting. Order the first three response actions. Rebooting destroys volatile RAM evidence; scanning while networked lets ransomware jump subnets.</p>${selRow('t5A1',1,STATE.dyn[5].A)}${selRow('t5A2',2,STATE.dyn[5].A)}${selRow('t5A3',3,STATE.dyn[5].A)}</div>`;
+const lab5B=`<div class="card"><h2>Ticket #4472 — Rogue Antivirus / Browser Hijack</h2><p class="scenario">User reports rapid browser hijacking, endless fake security alerts, and system sluggishness. Order all five remediation actions per malware-removal best practice.</p>${selRow('t5B1',1,STATE.dyn[5].B)}${selRow('t5B2',2,STATE.dyn[5].B)}${selRow('t5B3',3,STATE.dyn[5].B)}${selRow('t5B4',4,STATE.dyn[5].B)}${selRow('t5B5',5,STATE.dyn[5].B)}</div>`;
 
 // --- LAB 6 — BYOD WIRELESS & MAIL ---
-const lab6A=`<div class="card"><h2>Wireless Spectrum Optimization — BYOD Onboarding</h2><p class="scenario">A BYOD device fails to connect due to massive interference and channel saturation on the 2.4GHz band. Configure the device profile — do not alter the router's global broadcast channel and disrupt the office.</p><label>1. First action on the device WLAN settings:</label><select id="d6A1"><option value="0">-- Select --</option><option value="1">Change router global channel to 11</option><option value="2">Forget the saturated 2.4GHz SSID</option><option value="3">Toggle Airplane Mode repeatedly</option></select><label>2. Target band / SSID profile to add:</label><select id="d6A2"><option value="0">-- Select --</option><option value="1">Corporate 5GHz SSID (802.11ac/ax)</option><option value="2">Same 2.4GHz SSID with static IP</option><option value="3">Open guest hotspot</option></select><label>3. Security type:</label><select id="d6A3"><option value="0">-- Select --</option><option value="1">WEP</option><option value="2">WPA2/WPA3-Enterprise</option><option value="3">WPA2-Personal (pre-shared key)</option></select><label>4. Authentication method:</label><select id="d6A4"><option value="0">-- Select --</option><option value="1">Pre-shared key taped to the breakroom wall</option><option value="2">MAC address exemption only</option><option value="3">Domain credentials via 802.1X / RADIUS server authentication</option></select></div>`;
-const lab6B=`<div class="card compact"><h2>Secure Enterprise Mail Configuration</h2><p class="scenario">Manually configure a mobile device for secure corporate email routing using encrypted ports. Selecting unencrypted ports (143, 110, 25) instantly fails the secure compliance objective.</p><div class="field-grid"><div><label>1. Mail Server FQDN:</label><input type="text" id="d6B0" placeholder="e.g., mail.company.com"></div><div><label>2. Incoming (IMAP) port:</label><select id="d6B1"><option value="0">-- Select --</option><option value="1">143</option><option value="2">993</option><option value="3">80</option></select></div><div><label>3. Incoming (IMAP) encryption:</label><select id="d6B2"><option value="0">-- Select --</option><option value="1">None</option><option value="2">SSL/TLS</option><option value="3">ROT13</option></select></div><div><label>4. Outgoing (SMTP) port:</label><select id="d6B3"><option value="0">-- Select --</option><option value="1">25</option><option value="2">110</option><option value="3">587</option><option value="4">465</option></select></div><div><label>5. Outgoing (SMTP) encryption:</label><select id="d6B4"><option value="0">-- Select --</option><option value="1">None</option><option value="2">STARTTLS or SSL/TLS</option><option value="3">WEP</option></select></div><div><label>6. Outgoing server requires authentication:</label><select id="d6B5"><option value="0">-- Select --</option><option value="1">Unchecked</option><option value="2">Checked</option></select></div></div></div>`;
+const lab6A=`<div class="card"><h2>Wireless Spectrum Optimization — BYOD Onboarding</h2><p class="scenario">A BYOD device fails to connect due to massive interference and channel saturation on the 2.4GHz band. Configure the device profile — do not alter the router's global broadcast channel and disrupt the office.</p><label>1. First action on the device WLAN settings:</label><select id="d6A1">${STATE.dyn[6].A1.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select><label>2. Target band / SSID profile to add:</label><select id="d6A2">${STATE.dyn[6].A2.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select><label>3. Security type:</label><select id="d6A3">${STATE.dyn[6].A3.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select><label>4. Authentication method:</label><select id="d6A4">${STATE.dyn[6].A4.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select></div>`;
+const lab6B=`<div class="card compact"><h2>Secure Enterprise Mail Configuration</h2><p class="scenario">Manually configure a mobile device for secure corporate email routing using encrypted ports. Selecting unencrypted ports (143, 110, 25) instantly fails the secure compliance objective.</p><div class="field-grid"><div><label>1. Mail Server FQDN:</label><input type="text" id="d6B0" placeholder="e.g., mail.company.com"></div><div><label>2. Incoming (IMAP) port:</label><select id="d6B1">${STATE.dyn[6].B1.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select></div><div><label>3. Incoming (IMAP) encryption:</label><select id="d6B2">${STATE.dyn[6].B2.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select></div><div><label>4. Outgoing (SMTP) port:</label><select id="d6B3">${STATE.dyn[6].B3.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select></div><div><label>5. Outgoing (SMTP) encryption:</label><select id="d6B4">${STATE.dyn[6].B4.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select></div><div><label>6. Outgoing server requires authentication:</label><select id="d6B5">${STATE.dyn[6].B5.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select></div></div></div>`;
 
 // --- LAB 7 — DISK MANAGEMENT ---
-const lab7A=`<div class="card"><h2>diskmgmt.msc — Foreign Dynamic Disk</h2><p class="scenario">A dynamic storage drive harvested from a decommissioned Windows workstation is plugged into a new system. In diskmgmt.msc it shows a yellow warning icon labeled "Foreign." Preserve the client's data array.</p><table><tr><th>Disk</th><th>Status</th><th>Type</th></tr><tr><td>Disk 1</td><td>Foreign (Warning)</td><td>Dynamic</td></tr></table><label>Right-click action on the Foreign disk's left-hand pane:</label><select id="d7A1"><option value="0">-- Select --</option><option value="1">Initialize Disk</option><option value="2">Convert to Basic Disk</option><option value="3">Import Foreign Disks</option><option value="4">Delete Volume</option></select><label>After the wizard shows the volume layout:</label><select id="d7A2"><option value="0">-- Select --</option><option value="1">Cancel and reformat</option><option value="2">Verify layout and click OK to mount without wiping</option><option value="3">Convert to GPT immediately</option></select></div>`;
-const lab7B=`<div class="card"><h2>Initializing a New 4TB Drive</h2><p class="scenario">Initialize a brand-new 4TB hard drive as a single continuous block of storage. MBR carries a strict 2TB limit — any space beyond 2TB becomes permanently unallocated.</p><label>1. Partition style in the initialization wizard:</label><select id="d7B1"><option value="0">-- Select --</option><option value="1">MBR (Master Boot Record)</option><option value="2">GPT (GUID Partition Table)</option></select><label>2. Action on the unallocated space:</label><select id="d7B2"><option value="0">-- Select --</option><option value="1">New Simple Volume</option><option value="2">Shrink Volume</option><option value="3">Mark Partition as Active</option></select><label>3. File system schema:</label><select id="d7B3"><option value="0">-- Select --</option><option value="1">FAT32</option><option value="2">exFAT</option><option value="3">NTFS</option></select></div>`;
+const lab7A=`<div class="card"><h2>diskmgmt.msc — Foreign Dynamic Disk</h2><p class="scenario">A dynamic storage drive harvested from a decommissioned Windows workstation is plugged into a new system. In diskmgmt.msc it shows a yellow warning icon labeled "Foreign." Preserve the client's data array.</p><table><tr><th>Disk</th><th>Status</th><th>Type</th></tr><tr><td>Disk 1</td><td>Foreign (Warning)</td><td>Dynamic</td></tr></table><label>Right-click action on the Foreign disk's left-hand pane:</label><select id="d7A1">${STATE.dyn[7].A1.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select><label>After the wizard shows the volume layout:</label><select id="d7A2">${STATE.dyn[7].A2.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select></div>`;
+const lab7B=`<div class="card"><h2>Initializing a New 4TB Drive</h2><p class="scenario">Initialize a brand-new 4TB hard drive as a single continuous block of storage. MBR carries a strict 2TB limit — any space beyond 2TB becomes permanently unallocated.</p><label>1. Partition style in the initialization wizard:</label><select id="d7B1">${STATE.dyn[7].B1.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select><label>2. Action on the unallocated space:</label><select id="d7B2">${STATE.dyn[7].B2.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select><label>3. File system schema:</label><select id="d7B3">${STATE.dyn[7].B3.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select></div>`;
 
 // --- LAB 8 — POWER ALLOCATION ---
-const devs8A=[['Laser Printer','S'],['Core Switch','U'],['Space Heater','S'],['NAS Array','U'],['Paper Shredder','S'],['Router','U'],['Primary Workstation','U'],['Vacuum','S']];
-const lab8A=`<div class="card compact"><h2>Hardware Allocation — Surge Protector vs UPS</h2><p class="scenario">Route power for each IT device to either a standard Surge Protector or a UPS Battery Backup. A laser printer's fuser draws &gt;1000W instantaneous startup current — placing it on the UPS trips the inverter and drops the servers (zero score).</p><div class="drop-grid" style="margin-top:10px;">${devs8A.map((d,i)=>`<div class="dev">${d[0]}</div><select id="p8A${i}"><option value="0">-- Route To --</option><option value="S">Surge Protector Only</option><option value="U">UPS Battery Backup</option></select>`).join('')}</div></div>`;
-const lab8B=`<div class="card"><h2>Power Overload Calculations — VA vs Watts</h2><p class="scenario">A rack must be balanced across UPS units rated in Volt-Amps (VA). Do NOT treat VA and Watts as 1:1 — usable Wattage is roughly VA multiplied by the Power Factor (0.8 for this simulation), and no UPS should exceed 80% of that calculated Wattage capacity.</p><label>1. A 1000VA UPS has an estimated maximum Wattage capacity of:</label><select id="d8B1"><option value="0">-- Select --</option><option value="1">1000W</option><option value="2">~800W (VA x 0.8 Power Factor)</option><option value="3">1250W</option></select><label>2. Safe continuous loading target per UPS:</label><select id="d8B2"><option value="0">-- Select --</option><option value="1">100% of calculated Wattage</option><option value="2">No more than 80% of calculated Wattage capacity</option><option value="3">120% — UPS units have headroom</option></select><label>3. Rack contains: Server A (400W), Server B (350W), Core Switch (150W). UPS-1 is 1000VA (~800W usable). Correct mapping:</label><select id="d8B3"><option value="0">-- Select --</option><option value="1">All three devices on UPS-1 (900W total)</option><option value="2">Server A + Server B on UPS-1; provision secondary UPS for the Core Switch spillover</option><option value="3">Daisy-chain UPS-1 into a surge protector for extra capacity</option></select></div>`;
+const lab8A=`<div class="card compact"><h2>Hardware Allocation — Surge Protector vs UPS</h2><p class="scenario">Route power for each IT device to either a standard Surge Protector or a UPS Battery Backup. A laser printer's fuser draws &gt;1000W instantaneous startup current — placing it on the UPS trips the inverter and drops the servers (zero score).</p><div class="drop-grid" style="margin-top:10px;">${STATE.dyn[8].devs8A.map(d=>`<div class="dev">${d.name}</div><select id="p8A${d.origIndex}"><option value="0">-- Route To --</option><option value="S">Surge Protector Only</option><option value="U">UPS Battery Backup</option></select>`).join('')}</div></div>`;
+const lab8B=`<div class="card"><h2>Power Overload Calculations — VA vs Watts</h2><p class="scenario">A rack must be balanced across UPS units rated in Volt-Amps (VA). Do NOT treat VA and Watts as 1:1 — usable Wattage is roughly VA multiplied by the Power Factor (0.8 for this simulation), and no UPS should exceed 80% of that calculated Wattage capacity.</p><label>1. A 1000VA UPS has an estimated maximum Wattage capacity of:</label><select id="d8B1">${STATE.dyn[8].B1.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select><label>2. Safe continuous loading target per UPS:</label><select id="d8B2">${STATE.dyn[8].B2.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select><label>3. Rack contains: Server A (400W), Server B (350W), Core Switch (150W). UPS-1 is 1000VA (~800W usable). Correct mapping:</label><select id="d8B3">${STATE.dyn[8].B3.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select></div>`;
 
 // --- LAB 9 — SOHO ROUTER & SECURITY ---
 function apply9A() { if (STATE.locked) return; lockVariant(9); STATE.apply9A = true; const b = document.getElementById('btnApply9A'); b.textContent = 'Changes Applied ✓'; b.classList.add('v-pass'); }
 const lab9A=`<div class="card compact"><h2>Home Office Device Placement & Port Forwarding</h2><p class="scenario">A remote worker needs to access their office Windows PC via RDP, and their child needs their Xbox console to have an Open NAT type for multiplayer gaming.</p>
 <div class="field-grid" style="margin-top:10px;">
-  <div><label>1. Internet Location:</label><select id="d9A1"><option value="0">-- Select --</option><option value="1">Outside (Internet) Zone</option><option value="2">Screened Subnet / DMZ</option><option value="3">Internal LAN</option></select></div>
-  <div><label>2. Firewall/Router Placement:</label><select id="d9A2"><option value="0">-- Select --</option><option value="1">Directly behind Internet</option><option value="2">Inside DMZ only</option><option value="3">Inside Internal LAN</option></select></div>
-  <div><label>3. Wireless Access Point (WAP) Placement:</label><select id="d9A3"><option value="0">-- Select --</option><option value="1">Outside Zone</option><option value="2">Screened Subnet / DMZ</option><option value="3">Inside Internal LAN</option></select></div>
-  <div><label>4. Xbox Console Placement:</label><select id="d9A4"><option value="0">-- Select --</option><option value="1">Connected to WAP in LAN</option><option value="2">Directly behind Internet</option><option value="3">DMZ</option></select></div>
-  <div><label>5. Windows PC Placement:</label><select id="d9A5"><option value="0">-- Select --</option><option value="1">Connected to Firewall Internal Zone</option><option value="2">DMZ</option><option value="3">Outside Zone</option></select></div>
-  <div><label>6. Port Forwarding Rule (RDP to PC):</label><select id="d9A6"><option value="0">-- Select --</option><option value="1">Forward TCP 443 to PC</option><option value="2">Forward TCP 3389 to PC Static IP</option><option value="3">Forward UDP 3389 to Xbox</option></select></div>
-  <div><label>7. Xbox NAT Configuration:</label><select id="d9A7"><option value="0">-- Select --</option><option value="1">Enable UPnP</option><option value="2">Disable UPnP</option><option value="3">Block Xbox MAC address</option></select></div>
+  ${STATE.dyn[9].A.map((q, i) => `<div><label>${i+1}. ${q.label}</label><select id="${q.id}">${q.opts.map(o => `<option value="${o.val}">${o.t}</option>`).join('')}</select></div>`).join('')}
   <div style="grid-column: 1 / -1; margin-top: 8px;"><button id="btnApply9A" class="hbtn" style="width: 100%;" onclick="apply9A()">Save / Apply Changes</button></div>
 </div></div>`;
 
 function apply9B() { if (STATE.locked) return; lockVariant(9); STATE.apply9B = true; const b = document.getElementById('btnApply9B'); b.textContent = 'Changes Applied ✓'; b.classList.add('v-pass'); }
 const lab9B=`<div class="card compact"><h2>Secure Small Business Wi-Fi & MAC Filtering</h2><p class="scenario">A retail shop needs a secure POS Wi-Fi. Prevent random customers from seeing the network and restrict unauthorized websites.<br><strong>Note: Legacy POS terminals explicitly do NOT support WPA3.</strong><br>${STATE.dyn[9].mode==='allow' ? `The known POS MACs are: <code>${STATE.dyn[9].macs[0]}</code>, <code>${STATE.dyn[9].macs[1]}</code>, <code>${STATE.dyn[9].macs[2]}</code>. Whitelist these explicitly.` : `A known unauthorized scanner device has been detected with MAC: <code>${STATE.dyn[9].targetMac}</code>. You must explicitly block ONLY this device.`}</p>
 <div class="field-grid" style="margin-top:10px;">
-  <div><label>1. SSID Broadcast (Stealth Requirement):</label><select id="d9B1"><option value="0">-- Select --</option><option value="1">ON (Visible)</option><option value="2">OFF (Hidden)</option></select></div>
-  <div><label>2. Security Mode:</label><select id="d9B2"><option value="0">-- Select --</option><option value="1">WEP</option><option value="2">WPA2-Personal</option><option value="3">WPA3-Personal</option></select></div>
-  <div><label>3. MAC Filtering Mode:</label><select id="d9B3"><option value="0">-- Select --</option><option value="1">Allow Only (Whitelist)</option><option value="2">Deny Only (Blacklist)</option><option value="3">Disabled</option></select></div>
-  <div style="grid-column: 1 / -1;"><label>4. Target MAC Address(es) (Comma separated):</label><input type="text" id="d9B4" placeholder="Enter MAC addresses..." style="width: 100%;"></div>
-  <div style="grid-column: 1 / -1;"><label>5. Content Filtering (Block keywords, e.g. Social Media, Streaming):</label><input type="text" id="d9B5" placeholder="Enter categories/keywords to block..." style="width: 100%;"></div>
+  ${STATE.dyn[9].B.map((q, i) => q.type === 'select' ? `<div><label>${i+1}. ${q.label}</label><select id="${q.id}">${q.opts.map(o => `<option value="${o.val}">${o.t}</option>`).join('')}</select></div>` : `<div style="grid-column: 1 / -1;"><label>${i+1}. ${q.label}</label><input type="text" id="${q.id}" placeholder="${q.placeholder}" style="width: 100%;"></div>`).join('')}
   <div style="grid-column: 1 / -1; margin-top: 8px;"><button id="btnApply9B" class="hbtn" style="width: 100%;" onclick="apply9B()">Save / Apply Changes</button></div>
 </div></div>`;
 
@@ -1184,9 +1295,9 @@ function gradeLab(id) {
     }
     case 8: {
       if (variant === 'A') {
-        criteria = devs8A.map((d, i) => [
-          d[0] + ' routed to ' + (d[1] === 'S' ? 'Surge Protector Only' : 'UPS Battery Backup'),
-          val('p8A' + i) === d[1]
+        criteria = STATE.dyn[8].devs8A.map((d) => [
+          d.name + ' routed to ' + (d.correct === 'S' ? 'Surge Protector Only' : 'UPS Battery Backup'),
+          val('p8A' + d.origIndex) === d.correct
         ]);
       } else {
         criteria = [
