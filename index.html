@@ -648,7 +648,7 @@ const STATE = {
   chatStep:{'4A':0,'4B':0},
   apply9A:false,
   apply9B:false,
-  dyn:{2:{},3:{},5:{},6:{},7:{},8:{},9:{macs:[],mode:'',targetMac:''},10:{phish:'',cli:'',phishOpts:[]}}
+  dyn:{2:{},3:{},5:{},6:{},7:{},8:{},9:{macs:[],mode:'',targetMac:''},10:{phish:'',cli:'',phishOpts:[],remOpts:[],eduOpts:[]}}
 };
 
 // --- LAB RANDOMIZATION LOGIC ---
@@ -796,6 +796,12 @@ function initDynamic(){
   ].sort(()=>0.5-Math.random());
 
   STATE.dyn[10].cli = Math.random()>0.5 ? 'ipconfig' : 'netsh';
+
+  const rem10Bopts_raw = ['Identify the malware','Quarantine the infected systems','Disable System Restore','Remediate (Update signatures & scan)','Schedule scans & run updates','Enable System Restore & create point','Educate the end user'];
+  STATE.dyn[10].remOpts = [{val:'0', t:'-- Select Step --'}].concat(shuffle(rem10Bopts_raw.map((t, i) => ({val: String(i+1), t}))));
+
+  const eduOpts_raw = ['Configuring Port Forwarding','Identifying Hardware Failures','Recognizing Phishing Emails','Setting up RAID arrays'];
+  STATE.dyn[10].eduOpts = [{val:'0', t:'-- Select Training Topic --'}].concat(shuffle(eduOpts_raw.map((t, i) => ({val: String(i+1), t}))));
 }
 initDynamic();
 
@@ -1093,8 +1099,6 @@ const lab10A=`<div class="card compact"><h2>Setting Reversion & Network Quaranti
   <div style="grid-column: 1 / -1;"><label>5. File Server Action (Patient Zero):</label><select id="d10A5"><option value="0">-- Select --</option><option value="1">No Action Required</option><option value="2">Clear Proxy & Reset DNS</option><option value="3">Quarantine Node</option></select></div>
 </div></div>`;
 
-const rem10Bopts=['-- Select Step --','Identify the malware','Quarantine the infected systems','Disable System Restore','Remediate (Update signatures & scan)','Schedule scans & run updates','Enable System Restore & create point','Educate the end user'];
-const eduOpts=['-- Select Training Topic --','Configuring Port Forwarding','Identifying Hardware Failures','Recognizing Phishing Emails','Setting up RAID arrays'];
 const lab10B=`<div class="card flex-card">
 <div style="flex-shrink: 0;">
   <h2>Phishing Remediation & E-mail Security Header Analysis</h2>
@@ -1117,10 +1121,10 @@ C:\\Users\\Executive&gt;
 <div class="steps-container" style="overflow-y: auto; flex: 0 1 auto; padding-right: 8px; margin-top: 10px;">
   <h3 style="margin-top: 4px;">7-Step Malware Remediation Process</h3>
   <div class="field-grid" style="grid-template-columns: 1fr;">
-    ${[1,2,3,4,5,6,7].map(i => `<div class="step-row" id="row10B_step${i}" ${i > 1 ? 'style="display:none;"' : ''}><span class="num">${i}</span><select id="d10B_step${i}" style="flex:1;" onchange="unfold10B(${i})">${rem10Bopts.map((o,idx)=>`<option value="${idx}">${o}</option>`).join('')}</select></div>`).join('')}
+    ${[1,2,3,4,5,6,7].map(i => `<div class="step-row" id="row10B_step${i}" ${i > 1 ? 'style="display:none;"' : ''}><span class="num">${i}</span><select id="d10B_step${i}" style="flex:1;" onchange="unfold10B(${i})">${STATE.dyn[10].remOpts.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select></div>`).join('')}
   </div>
   <div id="row10B_step8" style="display:none;">
-    <label style="margin-top:8px;">8. Security Awareness Training Topic:</label><select id="d10B_edu" style="width:100%; margin-bottom:12px;">${eduOpts.map((o,idx)=>`<option value="${idx}">${o}</option>`).join('')}</select>
+    <label style="margin-top:8px;">8. Security Awareness Training Topic:</label><select id="d10B_edu" style="width:100%; margin-bottom:12px;">${STATE.dyn[10].eduOpts.map(o=>`<option value="${o.val}">${o.t}</option>`).join('')}</select>
   </div>
 </div>
 </div>`;
