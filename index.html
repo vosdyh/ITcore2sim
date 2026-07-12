@@ -1321,11 +1321,11 @@ function submitExam(){
     let prevBest = hist.variants[l.id][g.variant] || 0;
     hist.variants[l.id][g.variant] = Math.max(prevBest, g.score);
     const badge=g.score===100?'<span class="badge pass">COMPLIANT</span>':'<span class="badge fail">ACTION REQUIRED</span>';
-    blocks+=`<div class="lab-report"><h4>Lab ${l.id}: ${l.title} — Variant ${g.variant} &nbsp; <span>${g.score}/100 ${badge}</span></h4><strong style="font-size:12px;color:var(--text-secondary);">GRADING CRITERIA CHECKED:</strong><ul>${g.crit.map(c=>`<li class="${c[1]?'ok':'no'}"><span class="mark">${c[1]?'✅':'❌'}</span>${c[0]}</li>`).join('')}</ul><div class="textbook">${REMEDIATION[l.id]}</div></div>`;
+    blocks+=`<div class="lab-report"><h4>Lab ${l.id}: ${l.title} — Variant ${g.variant} &nbsp; <span>${g.score}% ${badge}</span></h4><strong style="font-size:12px;color:var(--text-secondary);">GRADING CRITERIA CHECKED:</strong><ul>${g.crit.map(c=>`<li class="${c[1]?'ok':'no'}"><span class="mark">${c[1]?'✅':'❌'}</span>${c[0]}</li>`).join('')}</ul><div class="textbook">${REMEDIATION[l.id]}</div></div>`;
   });
 
   const overallPercent = Math.round((total / 1000) * 100);
-  const scaled = Math.round(100+(total/1000)*800);
+  const scaled = Math.round((total / 10) * 8 + 100);
   const pass = scaled>=700;
   hist.attempts.push({ date: new Date().toLocaleDateString(), score: overallPercent, scaled: scaled });
   saveHistory(hist);
@@ -1336,7 +1336,7 @@ function submitExam(){
     <h2>Official Score Report</h2>
     <p class="sub">Core 2 Performance-Based Question Simulation<br>Candidate Session Locked · ${new Date().toLocaleString()}</p>
     <div class="score-big ${pass?'pass':'fail'}">${scaled}</div>
-    <div class="verdict" style="color:${pass?'var(--accent-good)':'var(--accent-bad)'}">${pass?'PASS':'FAIL'} — Scale 100–900 · Passing Score: 700</div>
+    <div class="verdict" style="color:${pass?'var(--accent-good)':'var(--accent-bad)'}"><span class="badge ${pass?'pass':'fail'}">${pass?'PASS':'FAIL'}</span> — Scale 100–900 · Passing Score: 700</div>
     ${graphHTML}
     ${blocks}
     <p style="text-align:center;font-size:11px;color:var(--text-secondary);font-family:monospace;margin-top:16px;">© 2026 jibbles. All Rights Reserved // Prepared for personal testing purposes only // Built with claude-fable-5, gemini-3.1-pro & gemini-3.1-pro-preview</p>
