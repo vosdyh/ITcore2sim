@@ -628,7 +628,7 @@ function applyVariantHistory() {
       if (!btn) return;
       let score = labHist[v];
       if (score === 100) {
-        btn.innerHTML = `Variant ${v} ✅`;
+        btn.innerHTML = `Variant ${v} ✔`;
         btn.classList.add('v-pass');
       } else if (score !== undefined) {
         btn.innerHTML = `Variant ${v} ➖`;
