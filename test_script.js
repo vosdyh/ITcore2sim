@@ -96,8 +96,28 @@ const STATE = {
   chatLog:{'4A':[],'4B':[]},
   chatStep:{'4A':0,'4B':0},
   apply9A:false,
-  apply9B:false
+  apply9B:false,
+  dyn:{9:{macs:[],mode:'',targetMac:''},10:{phish:'',cli:'',phishOpts:[]}}
 };
+
+function genMac(){ return "XX:XX:XX:XX:XX:XX".replace(/X/g, function() { return "0123456789ABCDEF".charAt(Math.floor(Math.random() * 16)); }); }
+function initDynamic(){
+  let m1=genMac(), m2=genMac(), m3=genMac(), bad=genMac();
+  STATE.dyn[9].macs = [m1,m2,m3];
+  if(Math.random()>0.5){ STATE.dyn[9].mode='allow'; STATE.dyn[9].targetMac=`${m1},${m2},${m3}`; }
+  else { STATE.dyn[9].mode='deny'; STATE.dyn[9].targetMac=bad; }
+
+  const phishPool = ['micros0ft.com', 'paypaI.com', 'appIe.com', 'microsoft-support.net'];
+  STATE.dyn[10].phish = phishPool[Math.floor(Math.random()*phishPool.length)];
+  STATE.dyn[10].phishOpts = [
+    `From: hr@microsoft.com, Reply-To: hr@microsoft.com`,
+    `From: admin@${STATE.dyn[10].phish}, Reply-To: attacker@gmail.com`,
+    `From: support@company.com, Reply-To: support@company.com`
+  ].sort(()=>0.5-Math.random());
+
+  STATE.dyn[10].cli = Math.random()>0.5 ? 'ipconfig' : 'netsh';
+}
+initDynamic();
 
 const LABS = [
  {id:1,title:"WinRE Boot Recovery"},
@@ -280,6 +300,8 @@ function termExec(key){
     } else if (c === 'ipconfig /renew') {
       STATE.term['10B_fail'] = true;
       out = '<span class="err">WARNING: IP address renewed. Ransomware is spreading across the network.</span>';
+    } else if (c === 'netsh interface set interface "ethernet" disable') {
+      out = '<span class="ok">Interface "Ethernet" successfully disabled. Network disconnected.</span>';
     } else if (c === 'ping 8.8.8.8') {
       out = 'Pinging 8.8.8.8 with 32 bytes of data:\nReply from 8.8.8.8: bytes=32 time=14ms TTL=117';
     } else {
@@ -296,7 +318,7 @@ function termExec(key){
 const CLI_MENU = {
   '1A': { 'bootrec': { '/fixmbr': ['[Execute]'], '/fixboot': ['[Execute]'], '/rebuildbcd': ['[Execute]'] }, 'exit': { '[None]': ['[Execute]'] }, 'diskpart': { '[None]': ['[Execute]'] }, 'bcdboot': { 'C:\\Windows': ['/s v: /f UEFI'] } },
   '1B': { 'diskpart': { '[None]': ['[Execute]'] }, 'sel': { 'disk': ['0'], 'vol': ['2'] }, 'list': { 'vol': ['[Execute]'] }, 'assign': { 'letter=v:': ['[Execute]'] }, 'exit': { '[None]': ['[Execute]'] }, 'format': { 'v:': ['/FS:FAT32'], 'c:': ['[Execute]'] }, 'bcdboot': { 'C:\\Windows': ['/s v: /f UEFI'] } },
-  '10B': { 'ipconfig': { '/release': ['[Execute]'], '/renew': ['[Execute]'] }, 'ping': { '8.8.8.8': ['[Execute]'] } }
+  '10B': { 'ipconfig': { '/release': ['[Execute]'], '/renew': ['[Execute]'] }, 'netsh': { 'interface': ['set interface "Ethernet" disable'] }, 'ping': { '8.8.8.8': ['[Execute]'] } }
 };
 
 function initCli(key) {
@@ -407,12 +429,12 @@ const lab9A=`<div class="card compact"><h2>Home Office Device Placement & Port F
 </div></div>`;
 
 function apply9B() { if (STATE.locked) return; lockVariant(9); STATE.apply9B = true; const b = document.getElementById('btnApply9B'); b.textContent = 'Changes Applied ✓'; b.classList.add('v-pass'); }
-const lab9B=`<div class="card compact"><h2>Secure Small Business Wi-Fi & MAC Filtering</h2><p class="scenario">A retail shop needs a secure POS Wi-Fi. Prevent random customers from seeing the network and restrict unauthorized websites. The known POS MACs are: <code>AA:BB:CC:11:22:33</code>, <code>AA:BB:CC:44:55:66</code>, <code>AA:BB:CC:77:88:99</code>.</p>
+const lab9B=`<div class="card compact"><h2>Secure Small Business Wi-Fi & MAC Filtering</h2><p class="scenario">A retail shop needs a secure POS Wi-Fi. Prevent random customers from seeing the network and restrict unauthorized websites.<br><strong>Note: Legacy POS terminals explicitly do NOT support WPA3.</strong><br>${STATE.dyn[9].mode==='allow' ? `The known POS MACs are: <code>${STATE.dyn[9].macs[0]}</code>, <code>${STATE.dyn[9].macs[1]}</code>, <code>${STATE.dyn[9].macs[2]}</code>. Whitelist these explicitly.` : `A known unauthorized scanner device has been detected with MAC: <code>${STATE.dyn[9].targetMac}</code>. You must explicitly block ONLY this device.`}</p>
 <div class="field-grid" style="margin-top:10px;">
   <div><label>1. SSID Broadcast (Stealth Requirement):</label><select id="d9B1"><option value="0">-- Select --</option><option value="1">ON (Visible)</option><option value="2">OFF (Hidden)</option></select></div>
-  <div><label>2. Security Mode:</label><select id="d9B2"><option value="0">-- Select --</option><option value="1">WEP</option><option value="2">WPA3-Personal</option><option value="3">WPA2-Enterprise</option></select></div>
+  <div><label>2. Security Mode:</label><select id="d9B2"><option value="0">-- Select --</option><option value="1">WEP</option><option value="2">WPA2-Personal</option><option value="3">WPA3-Personal</option></select></div>
   <div><label>3. MAC Filtering Mode:</label><select id="d9B3"><option value="0">-- Select --</option><option value="1">Allow Only (Whitelist)</option><option value="2">Deny Only (Blacklist)</option><option value="3">Disabled</option></select></div>
-  <div style="grid-column: 1 / -1;"><label>4. Permitted MAC Addresses (Comma separated):</label><input type="text" id="d9B4" placeholder="Enter MAC addresses..." style="width: 100%;"></div>
+  <div style="grid-column: 1 / -1;"><label>4. Target MAC Address(es) (Comma separated):</label><input type="text" id="d9B4" placeholder="Enter MAC addresses..." style="width: 100%;"></div>
   <div style="grid-column: 1 / -1;"><label>5. Content Filtering (Block keywords, e.g. Social Media, Streaming):</label><input type="text" id="d9B5" placeholder="Enter categories/keywords to block..." style="width: 100%;"></div>
   <div style="grid-column: 1 / -1; margin-top: 8px;"><button id="btnApply9B" class="hbtn" style="width: 100%;" onclick="apply9B()">Save / Apply Changes</button></div>
 </div></div>`;
@@ -420,21 +442,22 @@ const lab9B=`<div class="card compact"><h2>Secure Small Business Wi-Fi & MAC Fil
 /* ============================================================
    LAB 10 — ENTERPRISE MALWARE RESPONSE
    ============================================================ */
-const lab10A=`<div class="card compact"><h2>Setting Reversion & Network Quarantine</h2><p class="scenario">Several workstations are redirecting users to malicious search engines. Investigate the 5 nodes, fix altered settings, and quarantine the two biggest threats. Logs indicate PC-02 blocked a threat successfully, PC-03 AV service terminated, and the File Server shows multiple malicious .exe pulls.</p>
+const lab10A=`<div class="card compact"><h2>Setting Reversion & Network Quarantine</h2><p class="scenario">Several workstations are redirecting users to malicious search engines. Investigate the 5 nodes, fix altered settings, and quarantine the two biggest threats. Logs indicate PC-02 blocked a threat successfully, PC-03 shows "Error 1067: The process terminated unexpectedly" for the AV service, and the File Server shows multiple malicious .exe pulls.</p>
 <div class="field-grid" style="margin-top:10px;">
   <div><label>1. PC-01 Action:</label><select id="d10A1"><option value="0">-- Select --</option><option value="1">No Action Required</option><option value="2">Clear Proxy & Reset DNS</option><option value="3">Quarantine Node</option></select></div>
   <div><label>2. PC-02 Action (AV Log: Threat Blocked):</label><select id="d10A2"><option value="0">-- Select --</option><option value="1">No Action Required</option><option value="2">Clear Proxy & Reset DNS</option><option value="3">Quarantine Node</option></select></div>
-  <div><label>3. PC-03 Action (AV Log: Service Terminated):</label><select id="d10A3"><option value="0">-- Select --</option><option value="1">No Action Required</option><option value="2">Clear Proxy & Reset DNS</option><option value="3">Quarantine Node</option></select></div>
+  <div><label>3. PC-03 Action (AV Log: Error 1067 Terminated):</label><select id="d10A3"><option value="0">-- Select --</option><option value="1">No Action Required</option><option value="2">Clear Proxy & Reset DNS</option><option value="3">Quarantine Node</option></select></div>
   <div><label>4. PC-04 Action:</label><select id="d10A4"><option value="0">-- Select --</option><option value="1">No Action Required</option><option value="2">Clear Proxy & Reset DNS</option><option value="3">Quarantine Node</option></select></div>
   <div style="grid-column: 1 / -1;"><label>5. File Server Action (Patient Zero):</label><select id="d10A5"><option value="0">-- Select --</option><option value="1">No Action Required</option><option value="2">Clear Proxy & Reset DNS</option><option value="3">Quarantine Node</option></select></div>
 </div></div>`;
 
 const rem10Bopts=['-- Select Step --','Identify the malware','Quarantine the infected systems','Disable System Restore','Remediate (Update signatures & scan)','Schedule scans & run updates','Enable System Restore & create point','Educate the end user'];
+const eduOpts=['-- Select Training Topic --','Configuring Port Forwarding','Identifying Hardware Failures','Recognizing Phishing Emails','Setting up RAID arrays'];
 const lab10B=`<div class="card flex-card">
 <div style="flex-shrink: 0;">
   <h2>Phishing Remediation & E-mail Security Header Analysis</h2>
-  <p class="scenario">A corporate executive clicked a link in a suspicious email. Accounting computers are showing ransomware warning screens. Identify the malicious email, isolate the node via CLI, and arrange the 7-step remediation process.</p>
-  <label>1. Identify Phishing Email (Header Analysis):</label><select id="d10B1" style="width: 100%; margin-bottom: 8px;"><option value="0">-- Select Suspicious Email --</option><option value="1">From: hr@microsoft.com, Reply-To: hr@microsoft.com</option><option value="2">From: admin@micros0ft.com, Reply-To: attacker@gmail.com</option><option value="3">From: support@company.com, Reply-To: support@company.com</option></select>
+  <p class="scenario">A corporate executive clicked a link in a suspicious email. Accounting computers are showing ransomware warning screens. ${STATE.dyn[10].cli === 'ipconfig' ? 'Use the terminal to drop the IP lease on the affected node immediately.' : 'The network adapter is administratively locked from the GUI. Use the terminal (netsh) to disable the Ethernet interface completely.'}</p>
+  <label>1. Identify Phishing Email (Header Analysis):</label><select id="d10B1" style="width: 100%; margin-bottom: 8px;"><option value="0">-- Select Suspicious Email --</option><option value="1">${STATE.dyn[10].phishOpts[0]}</option><option value="2">${STATE.dyn[10].phishOpts[1]}</option><option value="3">${STATE.dyn[10].phishOpts[2]}</option></select>
   <div class="terminal" id="term10B" style="height: 120px; min-height: 80px; max-height: none; flex-shrink: 0;">C:\\Users\\Executive&gt;
 </div>
   <div class="term-input" style="align-items: center; flex-wrap: wrap; flex-shrink: 0;">
@@ -451,6 +474,7 @@ const lab10B=`<div class="card flex-card">
   <div class="field-grid" style="grid-template-columns: 1fr;">
     ${[1,2,3,4,5,6,7].map(i => `<div class="step-row"><span class="num">${i}</span><select id="d10B_step${i}" style="flex:1;">${rem10Bopts.map((o,idx)=>`<option value="${idx}">${o}</option>`).join('')}</select></div>`).join('')}
   </div>
+  <label style="margin-top:8px;">8. Security Awareness Training Topic:</label><select id="d10B_edu" style="width:100%; margin-bottom:12px;">${eduOpts.map((o,idx)=>`<option value="${idx}">${o}</option>`).join('')}</select>
 </div>
 </div>`;
 
@@ -643,13 +667,18 @@ function gradeLab(id) {
       } else {
         const mac = (document.getElementById('d9B4').value || '').trim();
         const cf = (document.getElementById('d9B5').value || '').trim();
-        const hasMacs = mac.includes('AA:BB:CC:11:22:33') && mac.includes('AA:BB:CC:44:55:66') && mac.includes('AA:BB:CC:77:88:99');
+        let hasMacs = false;
+        if(STATE.dyn[9].mode==='allow'){
+          hasMacs = mac.includes(STATE.dyn[9].macs[0]) && mac.includes(STATE.dyn[9].macs[1]) && mac.includes(STATE.dyn[9].macs[2]);
+        } else {
+          hasMacs = mac.includes(STATE.dyn[9].targetMac);
+        }
         const hasCf = cf.length > 3;
         criteria = [
           ['SSID Broadcast turned OFF (Hidden)', val('d9B1') === '2'],
-          ['Security Mode set to WPA3-Personal', val('d9B2') === '2'],
-          ['MAC Filtering set to Allow Only (Whitelist)', val('d9B3') === '1'],
-          ['All 3 authorized POS MAC addresses entered', hasMacs],
+          ['Security Mode set to WPA2-Personal (Legacy support)', val('d9B2') === '2'],
+          [`MAC Filtering set to ${STATE.dyn[9].mode==='allow' ? 'Allow Only (Whitelist)' : 'Deny Only (Blacklist)'}`, val('d9B3') === (STATE.dyn[9].mode==='allow' ? '1' : '2')],
+          [`${STATE.dyn[9].mode==='allow' ? 'All 3 authorized POS' : 'Target unauthorized scanner'} MAC addresses entered`, hasMacs],
           ['Content Filtering keywords configured', hasCf],
           ['"Save / Apply Changes" button clicked', STATE.apply9B === true]
         ];
@@ -666,16 +695,25 @@ function gradeLab(id) {
           ['File Server: Quarantine Node (Patient Zero)', val('d10A5') === '3']
         ];
       } else {
+        const rightPhishIdx = STATE.dyn[10].phishOpts.findIndex(o=>o.includes('attacker@gmail.com'))+1;
+        const cliCmd = STATE.dyn[10].cli === 'ipconfig' ? 'ipconfig /release' : 'netsh interface set interface "ethernet" disable';
+
+        let seqOk = true;
+        let v_step2 = val('d10B_step2');
+        let v_step4 = val('d10B_step4');
+        if (v_step4 === '4' && v_step2 !== '2') seqOk = false;
+
         criteria = [
-          ['Identified malicious email (micros0ft.com spoof)', val('d10B1') === '2'],
-          ['Executed ipconfig /release in terminal (Quarantine)', STATE.term['10B'].includes('ipconfig /release') && !STATE.term['10B_fail']],
+          [`Identified malicious email (${STATE.dyn[10].phish} spoof)`, val('d10B1') === String(rightPhishIdx)],
+          [`Executed ${cliCmd} in terminal (Quarantine)`, STATE.term['10B'].includes(cliCmd) && !STATE.term['10B_fail']],
           ['Step 1: Identify the malware', val('d10B_step1') === '1'],
           ['Step 2: Quarantine the infected systems', val('d10B_step2') === '2'],
           ['Step 3: Disable System Restore', val('d10B_step3') === '3'],
-          ['Step 4: Remediate (Update signatures & scan)', val('d10B_step4') === '4'],
+          ['Step 4: Remediate (No lateral movement penalty)', seqOk && val('d10B_step4') === '4'],
           ['Step 5: Schedule scans & run updates', val('d10B_step5') === '5'],
           ['Step 6: Enable System Restore & create point', val('d10B_step6') === '6'],
-          ['Step 7: Educate the end user', val('d10B_step7') === '7']
+          ['Step 7: Educate the end user', val('d10B_step7') === '7'],
+          ['Security Awareness: Recognizing Phishing Emails', val('d10B_edu') === '3']
         ];
       }
       break;
