@@ -233,11 +233,12 @@ th { background: var(--bg-panel-secondary); color: var(--accent-primary); }
 .lab-report { border: 1px solid var(--border-primary); border-radius: 8px; padding: 14px; margin-bottom: 12px; background: var(--bg-panel-secondary); }
 .lab-report h4 { font-size: 13.5px; color: var(--text-heading); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
 .lab-report ul { margin: 8px 0 8px 4px; font-size: 12.5px; line-height: 1.7; list-style: none; }
+.lab-report li { display: flex; align-items: flex-start; }
 .lab-report li.ok { color: #9fd7a8; }
 body.light-theme .lab-report li.ok { color: var(--accent-good); }
 .lab-report li.no { color: #e8938e; }
 body.light-theme .lab-report li.no { color: var(--accent-bad); }
-.lab-report li .mark { display: inline-block; width: 24px; }
+.lab-report li .mark { flex: 0 0 24px; }
 .textbook { background: var(--textbook-bg); border-left: 3px solid var(--accent-primary); padding: 10px 12px; font-size: 12.5px; line-height: 1.65; color: var(--textbook-text); margin-top: 8px; border-radius: 0 6px 6px 0; }
 .textbook b { color: var(--textbook-accent); }
 #closeModal { display: block; margin: 18px auto 0; background: var(--bg-panel-secondary); border: 1px solid var(--border-primary); color: var(--text-primary); padding: 10px 24px; border-radius: 6px; cursor: pointer; }
@@ -1458,7 +1459,7 @@ function submitExam(){
     let prevBest = hist.variants[l.id][g.variant] || 0;
     hist.variants[l.id][g.variant] = Math.max(prevBest, g.score);
     const badge=g.score===100?'<span class="badge pass">COMPLIANT</span>':'<span class="badge fail">ACTION REQUIRED</span>';
-    blocks+=`<div class="lab-report"><h4>Lab ${l.id}: ${l.title} — Variant ${g.variant} &nbsp; <span>${g.score}% ${badge}</span></h4><strong style="font-size:12px;color:var(--text-secondary);">GRADING CRITERIA CHECKED:</strong><ul>${g.crit.map(c=>`<li class="${c[1]?'ok':'no'}"><span class="mark">${c[1]?' ✔':'❌'}</span>${c[0]}</li>`).join('')}</ul><div class="textbook">${REMEDIATION[l.id]}</div></div>`;
+    blocks+=`<div class="lab-report"><h4>Lab ${l.id}: ${l.title} — Variant ${g.variant} &nbsp; <span>${g.score}% ${badge}</span></h4><strong style="font-size:12px;color:var(--text-secondary);">GRADING CRITERIA CHECKED:</strong><ul>${g.crit.map(c=>`<li class="${c[1]?'ok':'no'}"><span class="mark">${c[1]?'✔':'❌'}</span>${c[0]}</li>`).join('')}</ul><div class="textbook">${REMEDIATION[l.id]}</div></div>`;
   });
 
   const overallPercent = Math.round((total / 1000) * 100);
