@@ -605,9 +605,7 @@ function updateTheme(isLight) {
   }
 }
 
-/* ============================================================
-   HISTORY & PERSISTENCE MANAGER
-   ============================================================ */
+// --- HISTORY & PERSISTENCE MANAGER ---
 function loadHistory() {
   try {
     let hist = localStorage.getItem('pbq_sim_history');
@@ -640,9 +638,7 @@ function applyVariantHistory() {
   });
 }
 
-/* ============================================================
-   BACKEND DATA MODEL
-   ============================================================ */
+// --- BACKEND DATA MODEL ---
 const STATE = {
   locked:false,
   variant:{1:'A',2:'A',3:'A',4:'A',5:'A',6:'A',7:'A',8:'A',9:'A',10:'A'},
@@ -655,6 +651,7 @@ const STATE = {
   dyn:{9:{macs:[],mode:'',targetMac:''},10:{phish:'',cli:'',phishOpts:[]}}
 };
 
+// --- LAB RANDOMIZATION LOGIC ---
 function genMac(){ return "XX:XX:XX:XX:XX:XX".replace(/X/g, function() { return "0123456789ABCDEF".charAt(Math.floor(Math.random() * 16)); }); }
 function initDynamic(){
   let m1=genMac(), m2=genMac(), m3=genMac(), bad=genMac();
@@ -687,9 +684,7 @@ const LABS = [
  {id:10,title:"Enterprise Malware Response"}
 ];
 
-/* ============================================================
-   RENDER: SIDEBAR TABS + LAB SHELLS
-   ============================================================ */
+// --- RENDER: SIDEBAR TABS + LAB SHELLS ---
 const nav=document.getElementById('tabs'), labsBox=document.getElementById('labs');
 LABS.forEach((l,i)=>{
   const b=document.createElement('button');
@@ -759,9 +754,7 @@ function labShell(id,innerA,innerB){
   </section>`;
 }
 
-/* ============================================================
-   LAB 1 — WinRE CLI TERMINALS
-   ============================================================ */
+// --- LAB 1 — WinRE CLI TERMINALS ---
 const lab1A=`<div class="card" style="flex-shrink: 0;"><h2>WinRE Command Line — Legacy MBR Recovery</h2>
 <p class="scenario">A legacy BIOS workstation crashes on boot with the <b>BOOTMGR is missing</b> error. You have been dropped into the Windows Recovery Environment (WinRE) command prompt. Restore boot capability using the correct command sequence, then exit and restart.</p></div>
 <div class="card flex-card">
@@ -915,24 +908,18 @@ function execCli(key) {
   s1.value = ''; updateCli(1, key);
 }
 
-/* ============================================================
-   LAB 2 — GROUP POLICY
-   ============================================================ */
+// --- LAB 2 — GROUP POLICY ---
 const gpoOptsA=['-- Select Action --','Open Local Security Policy (secpol.msc)','Execute gpresult /r','Execute gpupdate /force','Reboot machine immediately','Instruct user to Log Off and Log Back In','Edit registry HKLM policy keys manually'];
 const gpoOptsB=['-- Select Action --','Execute ipconfig /release','Execute ipconfig /flushdns','Execute ipconfig /registerdns','Execute gpupdate /force','Edit registry HKLM policy keys manually','Assume GPO is broken; rebuild GPO from scratch'];
 function selRow(id,n,opts){return `<div class="step-row"><span class="num">${n}</span><select id="${id}">${opts.map((o,i)=>`<option value="${i}">${o}</option>`).join('')}</select></div>`;}
 const lab2A=`<div class="card"><h2>OU Relocation — Missing Drive Mappings</h2><p class="scenario">An employee profile has been moved from the "Sales" Organizational Unit (OU) to "Management" in Active Directory, but the user lacks their new Management network drive mappings. From an elevated command prompt, select the correct ordered sequence of actions.</p><h3>Ordered Resolution Steps</h3>${selRow('gpo2A1',1,gpoOptsA)}${selRow('gpo2A2',2,gpoOptsA)}${selRow('gpo2A3',3,gpoOptsA)}</div>`;
 const lab2B=`<div class="card"><h2>Blocked Policy — Stale DNS to Decommissioned DC</h2><p class="scenario">A machine refuses to pull new security compliance templates. The local DNS cache is pointing to a decommissioned Domain Controller. Select the correct ordered sequence of actions to restore policy synchronization.</p><h3>Ordered Resolution Steps</h3>${selRow('gpo2B1',1,gpoOptsB)}${selRow('gpo2B2',2,gpoOptsB)}${selRow('gpo2B3',3,gpoOptsB)}</div>`;
 
-/* ============================================================
-   LAB 3 — UNATTENDED DEPLOYMENT
-   ============================================================ */
+// --- LAB 3 — UNATTENDED DEPLOYMENT ---
 const lab3A=`<div class="card"><h2>Automated Answer File Image Rollout</h2><p class="scenario">Configure an automated corporate image rollout requiring zero human interaction during installation (OOBE bypass, timezone setting, partition creation) on a prepared reference machine.</p><label>1. Tool used to generate the answer file:</label><select id="d3A1"><option value="0">-- Select --</option><option value="1">Notepad (.txt configuration)</option><option value="2">Windows System Image Manager (WSIM)</option><option value="3">Registry Editor (regedit)</option></select><label>2. Correct answer file format/name:</label><select id="d3A2"><option value="0">-- Select --</option><option value="1">unattend.ini</option><option value="2">deploy.txt</option><option value="3">unattend.xml</option></select><label>3. Command to strip the machine's unique SID and automate OOBE:</label><select id="d3A3"><option value="0">-- Select --</option><option value="1">sysprep.exe /generalize /oobe /unattend:unattend.xml</option><option value="2">sysprep.exe /audit /reboot</option><option value="3">dism /online /cleanup-image /restorehealth</option></select></div>`;
 const lab3B=`<div class="card"><h2>Command Line Silent Patch Deployment</h2><p class="scenario">Deploy an executable security patch to hundreds of endpoint nodes without prompting end-users or interrupting their workflow. A midday mass reboot is an instant failure.</p><label>1. Correct silent install command for an .msi package:</label><select id="d3B1"><option value="0">-- Select --</option><option value="1">msiexec /i package.msi /qn /norestart</option><option value="2">msiexec /i package.msi /interactive /forcerestart</option><option value="3">package.msi /silent /rebootnow</option></select><label>2. Correct silent switch chain for a wrapped .exe installer:</label><select id="d3B2"><option value="0">-- Select --</option><option value="1">setup.exe /verbose /promptall</option><option value="2">setup.exe /S /v"/qn"</option><option value="3">setup.exe /uninstall /f</option></select><label>3. Which switch prevents the mass midday reboot event?</label><select id="d3B3"><option value="0">-- Select --</option><option value="1">/forcerestart</option><option value="2">/qb</option><option value="3">/norestart</option></select></div>`;
 
-/* ============================================================
-   LAB 4 — LIVE CHAT
-   ============================================================ */
+// --- LAB 4 — LIVE CHAT ---
 const CHAT={'4A':{intro:[{who:'them',t:"THIS IS UNACCEPTABLE. I am the VP of Global Sales and I am LOCKED OUT before a board call in 10 minutes. Bypass this lock NOW or I'm calling your director."}],steps:[{them:"Well?? I don't have time for scripts. UNLOCK IT.",choices:[{t:'"Sir, you need to calm down before I can assist you."',ok:false},{t:'"I understand how critical this is for you."',ok:true},{t:'"Okay, given your position I\'ll bypass the lock immediately."',ok:false}]},{them:"Fine. So you're fixing it right now, yes?",choices:[{t:'"I can certainly help you get this resolved right away."',ok:true},{t:'"Policy is policy — there is nothing I can do quickly."',ok:false},{t:'"I\'ve already unlocked it, no verification needed for executives."',ok:false}]},{them:"Great. Just unlock it. What else do you possibly need?",choices:[{t:'"Nothing else — you\'re unlocked. Have a great board call!"',ok:false},{t:'"For security purposes, could you please verify your Employee ID or PIN?"',ok:true},{t:'"Can you email me from your personal Gmail to confirm identity?"',ok:false}]}]},'4B':{intro:[{who:'them',t:"Hi — I'm locked out of the finance database and I need an administrative override immediately. My chat name checks out, just push the reset through."}],steps:[{them:"Come on, you can see my profile name right there. Just reset it.",choices:[{t:'"Your chat profile is sufficient — resetting the password now."',ok:false},{t:'"I\'m unable to perform an immediate override, but I can absolutely help you through the secure process."',ok:true},{t:'"Overrides aren\'t my department. Goodbye."',ok:false}]},{them:"Ugh. Fine. Call me at 555-0199, that's my cell, and verify me there.",choices:[{t:'"Sure, calling the number you just gave me now."',ok:false},{t:'"I\'ll initiate a callback to your registered desk phone listed in the internal directory."',ok:true},{t:'"No calls needed — just tell me your mother\'s maiden name here in chat."',ok:false}]},{them:"Okay okay. What else do you need to grant the database access?",choices:[{t:'"Nothing — access granted after the callback."',ok:false},{t:'"Sensitive database access requires manager approval in the ticketing system plus MFA token verification."',ok:true},{t:'"I\'ll grant temporary admin rights to skip the paperwork."',ok:false}]}]}};
 function chatHTML(key,title,scen){const c=CHAT[key];let w=c.intro.map(m=>`<div class="msg them">${m.t}</div>`).join('');return `<div class="chat-card"><h2>${title}</h2><p class="scenario">${scen}</p><div class="chat-window" id="win${key}"><div class="spacer"></div>${w}<div class="msg them">${c.steps[0].them}</div></div><div class="choices" id="ch${key}"></div></div>`;}
 function addMsg(key,cls,text){const win=document.getElementById('win'+key);const d=document.createElement('div');d.className='msg '+cls;d.textContent=text;win.appendChild(d);win.scrollTop=win.scrollHeight;}
@@ -940,36 +927,26 @@ function renderChoices(key){const c=CHAT[key],step=STATE.chatStep[key],box=docum
 const lab4A=chatHTML('4A','Abrasive Executive — Locked Account','A frantic corporate executive demands an immediate bypass for a locked account via live chat, using abrasive, high-urgency language. Respond professionally at each turn.');
 const lab4B=chatHTML('4B','Social Engineering Counter-Measures','A user claims they are locked out of a critical database and requests an immediate administrative override. Verify without falling for the social engineering payload.');
 
-/* ============================================================
-   LAB 5 — TRIAGE QUEUES
-   ============================================================ */
+// --- LAB 5 — TRIAGE QUEUES ---
 const t5Aopts=['-- Select Action --','Reboot the machine to clear the lock screen','IMMEDIATELY disconnect machine from network (Unplug Ethernet / Disable NIC)','Run a full Antivirus scan while connected to the network','Leave the machine powered ON to preserve RAM state','Escalate the ticket to the Security/IR department','Pay the ransom from petty cash'];
 const t5Bopts=['-- Select Action --','Run malware scans in normal boot mode immediately','Disconnect from the network (Quarantine)','Disable System Restore','Reboot the machine into Safe Mode','Update anti-malware signatures (isolated) and run a full system scan','Re-enable System Restore and create a clean restore point'];
 const lab5A=`<div class="card"><h2>Ticket #4471 — Ransomware Lock Screen (Active Encryption)</h2><p class="scenario">A ticket contains a screenshot of a user's machine displaying a lock screen while their local network shares are rapidly encrypting. Order the first three response actions. Rebooting destroys volatile RAM evidence; scanning while networked lets ransomware jump subnets.</p>${selRow('t5A1',1,t5Aopts)}${selRow('t5A2',2,t5Aopts)}${selRow('t5A3',3,t5Aopts)}</div>`;
 const lab5B=`<div class="card"><h2>Ticket #4472 — Rogue Antivirus / Browser Hijack</h2><p class="scenario">User reports rapid browser hijacking, endless fake security alerts, and system sluggishness. Order all five remediation actions per malware-removal best practice.</p>${selRow('t5B1',1,t5Bopts)}${selRow('t5B2',2,t5Bopts)}${selRow('t5B3',3,t5Bopts)}${selRow('t5B4',4,t5Bopts)}${selRow('t5B5',5,t5Bopts)}</div>`;
 
-/* ============================================================
-   LAB 6 — BYOD WIRELESS & MAIL
-   ============================================================ */
+// --- LAB 6 — BYOD WIRELESS & MAIL ---
 const lab6A=`<div class="card"><h2>Wireless Spectrum Optimization — BYOD Onboarding</h2><p class="scenario">A BYOD device fails to connect due to massive interference and channel saturation on the 2.4GHz band. Configure the device profile — do not alter the router's global broadcast channel and disrupt the office.</p><label>1. First action on the device WLAN settings:</label><select id="d6A1"><option value="0">-- Select --</option><option value="1">Change router global channel to 11</option><option value="2">Forget the saturated 2.4GHz SSID</option><option value="3">Toggle Airplane Mode repeatedly</option></select><label>2. Target band / SSID profile to add:</label><select id="d6A2"><option value="0">-- Select --</option><option value="1">Corporate 5GHz SSID (802.11ac/ax)</option><option value="2">Same 2.4GHz SSID with static IP</option><option value="3">Open guest hotspot</option></select><label>3. Security type:</label><select id="d6A3"><option value="0">-- Select --</option><option value="1">WEP</option><option value="2">WPA2/WPA3-Enterprise</option><option value="3">WPA2-Personal (pre-shared key)</option></select><label>4. Authentication method:</label><select id="d6A4"><option value="0">-- Select --</option><option value="1">Pre-shared key taped to the breakroom wall</option><option value="2">MAC address exemption only</option><option value="3">Domain credentials via 802.1X / RADIUS server authentication</option></select></div>`;
 const lab6B=`<div class="card compact"><h2>Secure Enterprise Mail Configuration</h2><p class="scenario">Manually configure a mobile device for secure corporate email routing using encrypted ports. Selecting unencrypted ports (143, 110, 25) instantly fails the secure compliance objective.</p><div class="field-grid"><div><label>1. Mail Server FQDN:</label><input type="text" id="d6B0" placeholder="e.g., mail.company.com"></div><div><label>2. Incoming (IMAP) port:</label><select id="d6B1"><option value="0">-- Select --</option><option value="1">143</option><option value="2">993</option><option value="3">80</option></select></div><div><label>3. Incoming (IMAP) encryption:</label><select id="d6B2"><option value="0">-- Select --</option><option value="1">None</option><option value="2">SSL/TLS</option><option value="3">ROT13</option></select></div><div><label>4. Outgoing (SMTP) port:</label><select id="d6B3"><option value="0">-- Select --</option><option value="1">25</option><option value="2">110</option><option value="3">587</option><option value="4">465</option></select></div><div><label>5. Outgoing (SMTP) encryption:</label><select id="d6B4"><option value="0">-- Select --</option><option value="1">None</option><option value="2">STARTTLS or SSL/TLS</option><option value="3">WEP</option></select></div><div><label>6. Outgoing server requires authentication:</label><select id="d6B5"><option value="0">-- Select --</option><option value="1">Unchecked</option><option value="2">Checked</option></select></div></div></div>`;
 
-/* ============================================================
-   LAB 7 — DISK MANAGEMENT
-   ============================================================ */
+// --- LAB 7 — DISK MANAGEMENT ---
 const lab7A=`<div class="card"><h2>diskmgmt.msc — Foreign Dynamic Disk</h2><p class="scenario">A dynamic storage drive harvested from a decommissioned Windows workstation is plugged into a new system. In diskmgmt.msc it shows a yellow warning icon labeled "Foreign." Preserve the client's data array.</p><table><tr><th>Disk</th><th>Status</th><th>Type</th></tr><tr><td>Disk 1</td><td>Foreign (Warning)</td><td>Dynamic</td></tr></table><label>Right-click action on the Foreign disk's left-hand pane:</label><select id="d7A1"><option value="0">-- Select --</option><option value="1">Initialize Disk</option><option value="2">Convert to Basic Disk</option><option value="3">Import Foreign Disks</option><option value="4">Delete Volume</option></select><label>After the wizard shows the volume layout:</label><select id="d7A2"><option value="0">-- Select --</option><option value="1">Cancel and reformat</option><option value="2">Verify layout and click OK to mount without wiping</option><option value="3">Convert to GPT immediately</option></select></div>`;
 const lab7B=`<div class="card"><h2>Initializing a New 4TB Drive</h2><p class="scenario">Initialize a brand-new 4TB hard drive as a single continuous block of storage. MBR carries a strict 2TB limit — any space beyond 2TB becomes permanently unallocated.</p><label>1. Partition style in the initialization wizard:</label><select id="d7B1"><option value="0">-- Select --</option><option value="1">MBR (Master Boot Record)</option><option value="2">GPT (GUID Partition Table)</option></select><label>2. Action on the unallocated space:</label><select id="d7B2"><option value="0">-- Select --</option><option value="1">New Simple Volume</option><option value="2">Shrink Volume</option><option value="3">Mark Partition as Active</option></select><label>3. File system schema:</label><select id="d7B3"><option value="0">-- Select --</option><option value="1">FAT32</option><option value="2">exFAT</option><option value="3">NTFS</option></select></div>`;
 
-/* ============================================================
-   LAB 8 — POWER ALLOCATION
-   ============================================================ */
+// --- LAB 8 — POWER ALLOCATION ---
 const devs8A=[['Laser Printer','S'],['Core Switch','U'],['Space Heater','S'],['NAS Array','U'],['Paper Shredder','S'],['Router','U'],['Primary Workstation','U'],['Vacuum','S']];
 const lab8A=`<div class="card compact"><h2>Hardware Allocation — Surge Protector vs UPS</h2><p class="scenario">Route power for each IT device to either a standard Surge Protector or a UPS Battery Backup. A laser printer's fuser draws &gt;1000W instantaneous startup current — placing it on the UPS trips the inverter and drops the servers (zero score).</p><div class="drop-grid" style="margin-top:10px;">${devs8A.map((d,i)=>`<div class="dev">${d[0]}</div><select id="p8A${i}"><option value="0">-- Route To --</option><option value="S">Surge Protector Only</option><option value="U">UPS Battery Backup</option></select>`).join('')}</div></div>`;
 const lab8B=`<div class="card"><h2>Power Overload Calculations — VA vs Watts</h2><p class="scenario">A rack must be balanced across UPS units rated in Volt-Amps (VA). Do NOT treat VA and Watts as 1:1 — usable Wattage is roughly VA multiplied by the Power Factor (0.8 for this simulation), and no UPS should exceed 80% of that calculated Wattage capacity.</p><label>1. A 1000VA UPS has an estimated maximum Wattage capacity of:</label><select id="d8B1"><option value="0">-- Select --</option><option value="1">1000W</option><option value="2">~800W (VA x 0.8 Power Factor)</option><option value="3">1250W</option></select><label>2. Safe continuous loading target per UPS:</label><select id="d8B2"><option value="0">-- Select --</option><option value="1">100% of calculated Wattage</option><option value="2">No more than 80% of calculated Wattage capacity</option><option value="3">120% — UPS units have headroom</option></select><label>3. Rack contains: Server A (400W), Server B (350W), Core Switch (150W). UPS-1 is 1000VA (~800W usable). Correct mapping:</label><select id="d8B3"><option value="0">-- Select --</option><option value="1">All three devices on UPS-1 (900W total)</option><option value="2">Server A + Server B on UPS-1; provision secondary UPS for the Core Switch spillover</option><option value="3">Daisy-chain UPS-1 into a surge protector for extra capacity</option></select></div>`;
 
-/* ============================================================
-   LAB 9 — SOHO ROUTER & SECURITY
-   ============================================================ */
+// --- LAB 9 — SOHO ROUTER & SECURITY ---
 function apply9A() { if (STATE.locked) return; lockVariant(9); STATE.apply9A = true; const b = document.getElementById('btnApply9A'); b.textContent = 'Changes Applied ✓'; b.classList.add('v-pass'); }
 const lab9A=`<div class="card compact"><h2>Home Office Device Placement & Port Forwarding</h2><p class="scenario">A remote worker needs to access their office Windows PC via RDP, and their child needs their Xbox console to have an Open NAT type for multiplayer gaming.</p>
 <div class="field-grid" style="margin-top:10px;">
@@ -994,9 +971,7 @@ const lab9B=`<div class="card compact"><h2>Secure Small Business Wi-Fi & MAC Fil
   <div style="grid-column: 1 / -1; margin-top: 8px;"><button id="btnApply9B" class="hbtn" style="width: 100%;" onclick="apply9B()">Save / Apply Changes</button></div>
 </div></div>`;
 
-/* ============================================================
-   LAB 10 — ENTERPRISE MALWARE RESPONSE
-   ============================================================ */
+// --- LAB 10 — ENTERPRISE MALWARE RESPONSE ---
 const lab10A=`<div class="card compact"><h2>Setting Reversion & Network Quarantine</h2><p class="scenario">Several workstations are redirecting users to malicious search engines. Investigate the 5 nodes, fix altered settings, and quarantine the two biggest threats. Logs indicate PC-02 blocked a threat successfully, PC-03 shows "Error 1067: The process terminated unexpectedly" for the AV service, and the File Server shows multiple malicious .exe pulls.</p>
 <div class="field-grid" style="margin-top:10px;">
   <div><label>1. PC-01 Action:</label><select id="d10A1"><option value="0">-- Select --</option><option value="1">No Action Required</option><option value="2">Clear Proxy & Reset DNS</option><option value="3">Quarantine Node</option></select></div>
@@ -1033,9 +1008,7 @@ const lab10B=`<div class="card flex-card">
 </div>
 </div>`;
 
-/* ============================================================
-   MOUNT ALL LABS & APPLY HISTORY
-   ============================================================ */
+// --- MOUNT ALL LABS & APPLY HISTORY ---
 labsBox.innerHTML=labShell(1,lab1A,lab1B)+labShell(2,lab2A,lab2B)+labShell(3,lab3A,lab3B)+labShell(4,lab4A,lab4B)+labShell(5,lab5A,lab5B)+labShell(6,lab6A,lab6B)+labShell(7,lab7A,lab7B)+labShell(8,lab8A,lab8B)+labShell(9,lab9A,lab9B)+labShell(10,lab10A,lab10B);
 renderChoices('4A');renderChoices('4B');
 initCli('1A'); initCli('1B'); initCli('10B');
@@ -1049,17 +1022,13 @@ function initInputs(){document.querySelectorAll('main select').forEach(s=>{fitSe
 initInputs();
 window.addEventListener('resize',()=>document.querySelectorAll('main select').forEach(fitSelect));
 
-/* ============================================================
-   TIMER & LEGAL MODAL LOGIC
-   ============================================================ */
+// --- TIMER & LEGAL MODAL LOGIC ---
 let secs = 90 * 60; let tInt;
 function startExamTimer() { tInt = setInterval(() => { secs--; if (secs <= 0) { clearInterval(tInt); submitExam(); return; } document.getElementById('timer').textContent = String(Math.floor(secs / 60)).padStart(2, '0') + ':' + String(secs % 60).padStart(2, '0'); }, 1000); }
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('reset') === '1') { document.getElementById('legalOverlay').style.display = 'none'; document.getElementById('shake-wrap').classList.remove('blur-bg'); startExamTimer(); window.history.replaceState({}, document.title, window.location.pathname); } else { document.getElementById('acceptLegalBtn').addEventListener('click', () => { document.getElementById('legalOverlay').style.display = 'none'; document.getElementById('shake-wrap').classList.remove('blur-bg'); startExamTimer(); }); }
 
-/* ============================================================
-   GRADING ENGINE & SVG GRAPH GENERATOR
-   ============================================================ */
+// --- GRADING ENGINE & SVG GRAPH GENERATOR ---
 function val(id){const e=document.getElementById(id);return e?e.value:'0';}
 function seqIndexCheck(cmds,target){ let pos=-1,results=[];target.forEach(t=>{const idx=cmds.findIndex((c,i)=>i>pos&&c===t);if(idx>pos&&idx!==-1){results.push(true);pos=idx;}else results.push(false);});return results;}
 const REMEDIATION={1:"<b>WinRE Recovery Theory:</b> On legacy BIOS/MBR systems the canonical repair chain is <b>bootrec /fixmbr → bootrec /fixboot → bootrec /rebuildbcd → exit</b>. Running /rebuildbcd first fails on heavy MBR corruption. On UEFI systems, an 'Access is Denied' from /fixboot signals a corrupted EFI System Partition (ESP): use diskpart to select disk 0, list volumes, select the ~100MB Hidden FAT32 System volume, assign it a letter (v:), exit, <b>format v: /FS:FAT32</b>, then rebuild the store with <b>bcdboot C:\\Windows /s v: /f UEFI</b>.",2:"<b>Group Policy Theory:</b> After an OU relocation, verify applied GPOs with <b>gpresult /r</b>, force a DC poll with <b>gpupdate /force</b>, then have the user <b>Log Off and Log Back In</b> — mandatory for drive mappings. secpol.msc governs LOCAL policy only. For stale DNS: <b>ipconfig /flushdns → ipconfig /registerdns → gpupdate /force</b>.",3:"<b>Deployment Theory:</b> Zero-touch imaging uses <b>Windows System Image Manager (WSIM)</b> to author <b>unattend.xml</b>, then <b>sysprep.exe /generalize /oobe /unattend:unattend.xml</b>. Silent installs: <b>msiexec /i package.msi /qn /norestart</b> for MSI; <b>setup.exe /S /v\"/qn\"</b> for wrapped EXEs. Omitting <b>/norestart</b> causes a mass midday reboot.",4:"<b>Soft Skills Theory:</b> With abrasive executives: (1) validate frustration empathetically, (2) state clear intent, (3) pivot to verification (Employee ID/PIN) WITHOUT exception. Against social engineering: politely deny overrides, initiate a <b>callback to the registered desk phone</b>, and require <b>Manager Approval + MFA Token</b>.",5:"<b>Containment Theory:</b> Ransomware: IMMEDIATELY unplug Ethernet/disable NIC, leave the machine <b>powered ON</b> to preserve RAM state, escalate to Security/IR. Rogue AV/spyware: Quarantine → <b>Disable System Restore</b> → Safe Mode → update signatures and full scan → re-enable System Restore.",6:"<b>BYOD/Mail Theory:</b> For 2.4GHz saturation: forget the saturated SSID, join the corporate <b>5GHz (802.11ac/ax)</b> SSID with <b>WPA2/WPA3-Enterprise</b> using domain credentials over <b>802.1X/RADIUS</b>. Secure mail: IMAP <b>993</b> (SSL/TLS), POP3 <b>995</b> (SSL/TLS), SMTP <b>587</b> (STARTTLS) or <b>465</b> (SSL/TLS).",7:"<b>Disk Management Theory:</b> A dynamic disk showing 'Foreign' must be right-clicked → <b>Import Foreign Disks</b>. Drives >2TB must be initialized as <b>GPT</b> (MBR caps at 2TB), followed by New Simple Volume and <b>NTFS</b> formatting.",8:"<b>Power Theory:</b> High instantaneous-draw heating/motor devices (Printers, Heaters, Shredders) go on <b>Surge Protectors ONLY</b>. VA is not Watts: usable Wattage is roughly VA x 0.8 Power Factor, and load each UPS to no more than 80%.",9:"<b>SOHO Security Theory:</b> Devices needing public exposure (Xbox/gaming) should use <b>UPnP</b> or be placed in the <b>DMZ</b> (outside the internal firewall but behind the router). Internal PCs remain on the <b>Internal LAN</b> behind the firewall, with specific ports (like <b>TCP 3389</b> for RDP) forwarded to a <b>static IP</b>. For secure Wi-Fi: use <b>WPA3-Personal</b> (or WPA2), <b>Disable SSID Broadcast</b> (stealth), and implement <b>MAC Filtering (Allow Only/Whitelist)</b>.",10:"<b>Incident Response Theory:</b> When remediating, active threats require immediate <b>Quarantine</b>. Altered system settings (like rogue DNS or proxy servers) must be reset. Phishing emails often spoof domains (e.g., <i>micros0ft.com</i>) and use mismatched <i>Reply-To</i> headers. The official 7-step process: 1. <b>Identify</b>, 2. <b>Quarantine</b>, 3. <b>Disable System Restore</b>, 4. <b>Remediate</b> (update/scan), 5. <b>Schedule Scans</b>, 6. <b>Enable System Restore</b>, 7. <b>Educate User</b>."};
@@ -1280,9 +1249,7 @@ function gradeLab(id) {
   return { score, crit: criteria, variant };
 }
 
-/* ============================================================
-   ADAPTIVE GRAPH SVG GENERATOR
-   ============================================================ */
+// --- ADAPTIVE GRAPH SVG GENERATOR ---
 function generateGraphHTML(attempts) {
   if (attempts.length === 0) return '';
   const w = 800, h = 220, padX = 45, padY = 20;
@@ -1329,9 +1296,7 @@ function generateGraphHTML(attempts) {
   </div>`;
 }
 
-/* ============================================================
-   SCORE REPORT + MODAL CONTROLS + RESET
-   ============================================================ */
+// --- SCORE REPORT + MODAL CONTROLS + RESET ---
 function openReport(){const m=document.getElementById('modal');m.classList.remove('open');void m.offsetWidth;m.classList.add('open');}
 function closeReport(){document.getElementById('modal').classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeReport();closeResetModal();}});
