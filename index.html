@@ -280,9 +280,10 @@ body.light-theme .confirm-box p { color: var(--text-secondary); }
 .graph-wrap h3 { color: var(--text-heading); }
 
 /* FAB Styling */
-#settingsFab { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%; background: var(--accent-primary); color: #fff; border: none; cursor: pointer; z-index: 1000; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-#settingsFab svg { width: 26px; height: 26px; }
-#settingsFab.active { transform: rotate(360deg); }
+#settingsFab { position: fixed; bottom: 80px; right: 20px; width: 50px; height: 50px; border-radius: 50%; background: var(--accent-primary); color: #fff; border: none; cursor: pointer; z-index: 1000; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+#settingsFab svg { width: 26px; height: 26px; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+#settingsFab.active svg { transform: rotate(360deg); }
+#settingsFab:active { transform: scale(.95) translateY(1px); }
 
 /* Settings Modal Styling */
 .settings-card { background: var(--bg-panel); border: 1px solid var(--border-primary); border-radius: 12px; width: 320px; margin: 25vh auto; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); transform: scale(0); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -327,7 +328,7 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   #settingsFab {
     width: 42px !important;
     height: 42px !important;
-    bottom: 12px !important;
+    bottom: 72px !important;
     right: 12px !important;
   }
   .terminal {
