@@ -988,7 +988,10 @@ const lab10B=`<div class="card flex-card">
   <h2>Phishing Remediation & E-mail Security Header Analysis</h2>
   <p class="scenario">A corporate executive clicked a link in a suspicious email. Accounting computers are showing ransomware warning screens. ${STATE.dyn[10].cli === 'ipconfig' ? 'Use the terminal to drop the IP lease on the affected node immediately.' : 'The network adapter is administratively locked from the GUI. Use the terminal (netsh) to disable the Ethernet interface completely.'}</p>
   <label>1. Identify Phishing Email (Header Analysis):</label><select id="d10B1" style="width: 100%; margin-bottom: 8px;"><option value="0">-- Select Suspicious Email --</option><option value="1">${STATE.dyn[10].phishOpts[0]}</option><option value="2">${STATE.dyn[10].phishOpts[1]}</option><option value="3">${STATE.dyn[10].phishOpts[2]}</option></select>
-  <div class="terminal" id="term10B" style="height: 120px; min-height: 80px; max-height: none; flex-shrink: 0;">C:\\Users\\Executive&gt;
+  <div class="terminal" id="term10B" style="flex: 1; min-height: 100px; max-height: none;">Microsoft Windows [Version 10.0.19045]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\\Users\\Executive&gt;
 </div>
   <div class="term-input" style="align-items: center; flex-wrap: wrap; flex-shrink: 0;">
     <span style="padding-top: 0;">C:\\&gt;</span>
@@ -1002,9 +1005,11 @@ const lab10B=`<div class="card flex-card">
 <div class="steps-container" style="overflow-y: auto; flex: 0 1 auto; padding-right: 8px; margin-top: 10px;">
   <h3 style="margin-top: 4px;">7-Step Malware Remediation Process</h3>
   <div class="field-grid" style="grid-template-columns: 1fr;">
-    ${[1,2,3,4,5,6,7].map(i => `<div class="step-row"><span class="num">${i}</span><select id="d10B_step${i}" style="flex:1;">${rem10Bopts.map((o,idx)=>`<option value="${idx}">${o}</option>`).join('')}</select></div>`).join('')}
+    ${[1,2,3,4,5,6,7].map(i => `<div class="step-row" id="row10B_step${i}" ${i > 1 ? 'style="display:none;"' : ''}><span class="num">${i}</span><select id="d10B_step${i}" style="flex:1;" onchange="unfold10B(${i})">${rem10Bopts.map((o,idx)=>`<option value="${idx}">${o}</option>`).join('')}</select></div>`).join('')}
   </div>
-  <label style="margin-top:8px;">8. Security Awareness Training Topic:</label><select id="d10B_edu" style="width:100%; margin-bottom:12px;">${eduOpts.map((o,idx)=>`<option value="${idx}">${o}</option>`).join('')}</select>
+  <div id="row10B_step8" style="display:none;">
+    <label style="margin-top:8px;">8. Security Awareness Training Topic:</label><select id="d10B_edu" style="width:100%; margin-bottom:12px;">${eduOpts.map((o,idx)=>`<option value="${idx}">${o}</option>`).join('')}</select>
+  </div>
 </div>
 </div>`;
 
@@ -1018,6 +1023,22 @@ showLab(1);
 const measurer=document.getElementById('measure');
 function fitSelect(s){const opt=s.options[s.selectedIndex];measurer.textContent=opt?opt.text:'';s.style.width=Math.min(measurer.offsetWidth+44,s.parentElement.clientWidth||600)+'px';}
 function labIdOf(el){const sec=el.closest('.lab');return sec?parseInt(sec.id.replace('lab',''),10):null;}
+function unfold10B(step) {
+  const sel = document.getElementById('d10B_step' + step);
+  if (sel && sel.value !== '0') {
+    if (step === 7) {
+      const eduRow = document.getElementById('row10B_step8');
+      if (eduRow) {
+        eduRow.style.display = 'block';
+      }
+    } else {
+      const nextRow = document.getElementById('row10B_step' + (step + 1));
+      if (nextRow) {
+        nextRow.style.display = 'flex';
+      }
+    }
+  }
+}
 function initInputs(){document.querySelectorAll('main select').forEach(s=>{fitSelect(s);s.addEventListener('change',()=>{fitSelect(s);if(s.value!=='0'&&s.value!==''){const id=labIdOf(s);if(id)lockVariant(id);}});});const fqdn=document.getElementById('d6B0');fqdn.addEventListener('input',()=>{if(fqdn.value.trim()!=='')lockVariant(6);});}
 initInputs();
 window.addEventListener('resize',()=>document.querySelectorAll('main select').forEach(fitSelect));
